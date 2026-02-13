@@ -761,13 +761,19 @@ body.sheet-open .header {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--color-text);
+  /* Ensure current color is text color */
 }
 
 .sheet-close svg {
   width: 16px;
   /* 少し大きく */
   height: 16px;
-  fill: var(--color-text);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .sheet-body {
