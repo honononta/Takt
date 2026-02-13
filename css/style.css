@@ -747,7 +747,7 @@ body.sheet-open .header {
 .sheet-save svg {
   width: 24px;
   height: 24px;
-  stroke-width: 2.5;
+  /* fillはcurrentColorで指定済み */
 }
 
 .sheet-close {
@@ -764,12 +764,9 @@ body.sheet-open .header {
 
 .sheet-close svg {
   width: 16px;
+  /* 少し大きく */
   height: 16px;
-  stroke: var(--color-text-secondary);
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: var(--color-button-text);
 }
 
 .sheet-body {
