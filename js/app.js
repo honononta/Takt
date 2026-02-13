@@ -450,6 +450,8 @@ function setupTaskForm() {
     const dateTargetGroup = document.getElementById('dateTargetGroup');
     const timeGroup = document.getElementById('timeGroup');
     const importanceBtns = document.querySelectorAll('.importance-btn');
+    const headerSaveBtn = document.getElementById('taskHeaderSaveBtn');
+    const pinnedRow = document.getElementById('taskPinnedRow');
 
     taskOverlay.addEventListener('click', closeTaskForm);
     closeBtn.addEventListener('click', closeTaskForm);
@@ -465,6 +467,8 @@ function setupTaskForm() {
             const val = document.querySelector('input[name="targetType"]:checked').value;
             goalTargetGroup.style.display = val === 'goal' ? '' : 'none';
             dateTargetGroup.style.display = val === 'date' ? '' : 'none';
+            // 日付指定の時はピン留めを非表示
+            pinnedRow.style.display = val === 'date' ? 'none' : '';
         });
     });
 
@@ -495,7 +499,15 @@ function setupTaskForm() {
         }
     });
 
-    // Submit
+    // Submit (Header Save Button)
+    headerSaveBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await saveTaskFromForm();
+        closeTaskForm();
+        render();
+    });
+
+    // Submit (Form submit - Enter key etc)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await saveTaskFromForm();
@@ -521,6 +533,7 @@ function openTaskForm(task = null) {
     const goalTargetGroup = document.getElementById('goalTargetGroup');
     const dateTargetGroup = document.getElementById('dateTargetGroup');
     const timeGroup = document.getElementById('timeGroup');
+    const pinnedRow = document.getElementById('taskPinnedRow');
 
     if (task) {
         title.textContent = 'タスク編集';
@@ -552,15 +565,18 @@ function openTaskForm(task = null) {
             document.querySelector('input[name="targetType"][value="goal"]').checked = true;
             goalTargetGroup.style.display = '';
             dateTargetGroup.style.display = 'none';
+            pinnedRow.style.display = '';
             goalDate.value = task.targetDate || '';
         } else if (task.isSomeday) {
             document.querySelector('input[name="targetType"][value="someday"]').checked = true;
             goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = 'none';
+            pinnedRow.style.display = '';
         } else {
             document.querySelector('input[name="targetType"][value="date"]').checked = true;
             goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = '';
+            pinnedRow.style.display = 'none';
             targetDate.value = task.scheduledDate || task.targetDate || '';
 
             if (task.scheduledTime) {
@@ -589,6 +605,7 @@ function openTaskForm(task = null) {
         document.querySelector('input[name="targetType"][value="someday"]').checked = true;
         goalTargetGroup.style.display = 'none';
         dateTargetGroup.style.display = 'none';
+        pinnedRow.style.display = '';
         document.querySelector('input[name="timeType"][value="undecided"]').checked = true;
         timeGroup.style.display = 'none';
 

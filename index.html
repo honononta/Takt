@@ -113,12 +113,18 @@
   <div class="overlay" id="taskOverlay"></div>
   <div class="bottom-sheet task-sheet" id="taskSheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 class="sheet-title" id="taskSheetTitle">タスク追加</h2>
+    <div class="sheet-header task-header">
       <button class="sheet-close" id="taskSheetClose" aria-label="閉じる">
         <svg viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <h2 class="sheet-title" id="taskSheetTitle">タスク追加</h2>
+      <button class="sheet-save" id="taskHeaderSaveBtn" aria-label="保存">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </button>
     </div>
@@ -212,7 +218,7 @@
           </div>
         </div>
 
-        <div class="form-group form-row">
+        <div class="form-group form-row" id="taskPinnedRow">
           <label class="form-label">ピン止め</label>
           <label class="toggle">
             <input type="checkbox" id="taskPinned">
@@ -222,7 +228,7 @@
 
         <div class="form-actions">
           <button type="button" class="btn btn-delete" id="taskDeleteBtn" style="display:none;">削除</button>
-          <button type="submit" class="btn btn-primary" id="taskSaveBtn">保存</button>
+          <!-- 保存ボタンはヘッダーに移動 -->
         </div>
       </form>
     </div>
