@@ -2,6 +2,7 @@
  * someday.js — "いつかやる" bottom-sheet logic
  */
 import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
+import { lockScroll, unlockScroll } from './app.js';
 
 const overlay = document.getElementById('somedayOverlay');
 const sheet = document.getElementById('somedaySheet');
@@ -22,13 +23,13 @@ export function initSomeday(onTaskClick) {
 export function open() {
     overlay.classList.add('active');
     sheet.classList.add('active');
-    document.body.classList.add('sheet-open');
+    lockScroll();
 }
 
 export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
-    document.body.classList.remove('sheet-open');
+    unlockScroll();
 }
 
 export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {

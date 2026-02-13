@@ -100,7 +100,12 @@ body {
 }
 
 body.sheet-open {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   touch-action: none;
+  -webkit-overflow-scrolling: auto;
 }
 
 body.sheet-open .task-area {

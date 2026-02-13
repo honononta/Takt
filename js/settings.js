@@ -2,6 +2,7 @@
  * settings.js — Settings sheet logic (通知・祝日設定を削除)
  */
 import { getAllSettings, setSetting } from './db.js';
+import { lockScroll, unlockScroll } from './app.js';
 
 const overlay = document.getElementById('settingsOverlay');
 const sheet = document.getElementById('settingsSheet');
@@ -45,12 +46,12 @@ export async function open() {
 
     overlay.classList.add('active');
     sheet.classList.add('active');
-    document.body.classList.add('sheet-open');
+    lockScroll();
 }
 
 export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
-    document.body.classList.remove('sheet-open');
+    unlockScroll();
     if (_onClose) _onClose();
 }

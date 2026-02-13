@@ -20,8 +20,22 @@ let currentDate = new Date();
 let allTasks = [];
 let settings = {};
 let _prevWeekKey = null; // 前回描画した週の識別キー
+let _savedScrollTop = 0; // シート開閉時のスクロール位置保存
 
 const todayStr = () => toDateStr(new Date());
+
+// ===== Scroll Lock (iOS Safari 裏スクロール防止) =====
+export function lockScroll() {
+    _savedScrollTop = taskArea ? taskArea.scrollTop : 0;
+    document.body.style.top = '0px';
+    document.body.classList.add('sheet-open');
+}
+
+export function unlockScroll() {
+    document.body.classList.remove('sheet-open');
+    document.body.style.top = '';
+    if (taskArea) taskArea.scrollTop = _savedScrollTop;
+}
 
 // ===== DOM =====
 const headerDate = document.getElementById('headerDate');
@@ -505,7 +519,7 @@ function openTaskForm(task = null) {
 
     taskOverlay.classList.add('active');
     taskSheet.classList.add('active');
-    document.body.classList.add('sheet-open');
+    lockScroll();
     // アニメーション完了後にフォーカス（スクロールジャンプ防止）
     setTimeout(() => {
         nameInput.focus({ preventScroll: true });
@@ -515,7 +529,7 @@ function openTaskForm(task = null) {
 function closeTaskForm() {
     taskOverlay.classList.remove('active');
     taskSheet.classList.remove('active');
-    document.body.classList.remove('sheet-open');
+    unlockScroll();
 }
 
 async function saveTaskFromForm() {
