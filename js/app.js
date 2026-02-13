@@ -740,6 +740,15 @@ async function openTaskForm(task = null) {
     const pinnedRow = document.getElementById('taskPinnedRow');
     const recurrenceGroup = document.getElementById('taskRecurrenceGroup');
 
+    // Close Settings Sheet if open
+    const settingsSheet = document.getElementById('settingsSheet');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    if (settingsSheet && settingsSheet.classList.contains('active')) {
+        settingsSheet.classList.remove('active');
+        if (settingsOverlay) settingsOverlay.classList.remove('active');
+        // Note: We don't call unlockScroll here because openTaskForm calls lockScroll immediately
+    }
+
     // Reset Recurrence UI State
     if (recurrenceGroup) recurrenceGroup.style.display = '';
     document.getElementById('taskRecurrence').disabled = false;

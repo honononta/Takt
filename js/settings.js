@@ -4,54 +4,90 @@
 import { getAllSettings, setSetting } from './db.js';
 import { lockScroll, unlockScroll } from './app.js';
 
-const overlay = document.getElementById('settingsOverlay');
-const sheet = document.getElementById('settingsSheet');
 let _onClose = null;
 
 export function initSettings(onClose) {
     _onClose = onClose;
 
-    document.getElementById('settingsBtn').addEventListener('click', open);
-    document.getElementById('settingsClose').addEventListener('click', close);
-    overlay.addEventListener('click', close);
+    const btn = document.getElementById('settingsBtn');
+    if (btn) btn.addEventListener('click', open);
+
+    const closeBtn = document.getElementById('settingsClose');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    const overlay = document.getElementById('settingsOverlay');
+    if (overlay) overlay.addEventListener('click', close);
 
     // Theme
-    document.getElementById('settingTheme').addEventListener('change', async (e) => {
-        const val = e.target.value;
-        document.documentElement.setAttribute('data-theme', val);
-        await setSetting('theme', val);
-    });
+    const themeSelect = document.getElementById('settingTheme');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', async (e) => {
+            const val = e.target.value;
+            document.documentElement.setAttribute('data-theme', val);
+            await setSetting('theme', val);
+        });
+    }
 
     // Week start
-    document.getElementById('settingWeekStart').addEventListener('change', async (e) => {
-        await setSetting('weekStartDay', Number(e.target.value));
-        if (_onClose) _onClose();
-    });
+    const weekStartSelect = document.getElementById('settingWeekStart');
+    if (weekStartSelect) {
+        weekStartSelect.addEventListener('change', async (e) => {
+            await setSetting('weekStartDay', Number(e.target.value));
+            if (_onClose) _onClose();
+        });
+    }
 
     // Score thresholds
-    document.getElementById('settingN1').addEventListener('change', async (e) => {
-        await setSetting('scoreThresholdN1', Number(e.target.value));
-    });
-    document.getElementById('settingN2').addEventListener('change', async (e) => {
-        await setSetting('scoreThresholdN2', Number(e.target.value));
-    });
+    const n1Input = document.getElementById('settingN1');
+    if (n1Input) {
+        n1Input.addEventListener('change', async (e) => {
+            await setSetting('scoreThresholdN1', Number(e.target.value));
+        });
+    }
+    const n2Input = document.getElementById('settingN2');
+    if (n2Input) {
+        n2Input.addEventListener('change', async (e) => {
+            await setSetting('scoreThresholdN2', Number(e.target.value));
+        });
+    }
 }
 
 export async function open() {
-    const s = await getAllSettings();
-    document.getElementById('settingTheme').value = s.theme;
-    document.getElementById('settingWeekStart').value = String(s.weekStartDay);
-    document.getElementById('settingN1').value = s.scoreThresholdN1;
-    document.getElementById('settingN2').value = s.scoreThresholdN2;
+    // Close Task Sheet if open
+    const taskSheet = document.getElementById('taskSheet');
+    const taskOverlay = document.getElementById('taskOverlay');
+    if (taskSheet && taskSheet.classList.contains('active')) {
+        taskSheet.classList.remove('active');
+        if (taskOverlay) taskOverlay.classList.remove('active');
+    }
 
-    overlay.classList.add('active');
-    sheet.classList.add('active');
+    const overlay = document.getElementById('settingsOverlay');
+    const sheet = document.getElementById('settingsSheet');
+
+    const s = await getAllSettings();
+    const themeEl = document.getElementById('settingTheme');
+    if (themeEl) themeEl.value = s.theme;
+
+    const weekEl = document.getElementById('settingWeekStart');
+    if (weekEl) weekEl.value = String(s.weekStartDay);
+
+    const n1El = document.getElementById('settingN1');
+    if (n1El) n1El.value = s.scoreThresholdN1;
+
+    const n2El = document.getElementById('settingN2');
+    if (n2El) n2El.value = s.scoreThresholdN2;
+
+    if (overlay) overlay.classList.add('active');
+    if (sheet) sheet.classList.add('active');
     lockScroll();
 }
 
 export function close() {
-    overlay.classList.remove('active');
-    sheet.classList.remove('active');
+    const overlay = document.getElementById('settingsOverlay');
+    const sheet = document.getElementById('settingsSheet');
+
+    if (overlay) overlay.classList.remove('active');
+    if (sheet) sheet.classList.remove('active');
     unlockScroll();
     if (_onClose) _onClose();
 }
