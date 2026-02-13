@@ -310,6 +310,14 @@ function switchView(view) {
 function render(slideDir = null) {
     const dateStr = toDateStr(currentDate);
 
+    // Prepare scheduled dates for dots
+    const scheduledDates = new Set();
+    allTasks.forEach(t => {
+        if (t.date && t.date !== 'someday') {
+            scheduledDates.add(t.date);
+        }
+    });
+
     // Header & Views
     if (currentView === 'week') {
         headerDate.textContent = formatDateHeader(currentDate); // M月
@@ -327,7 +335,7 @@ function render(slideDir = null) {
             dir = fromDateStr(newWeekKey) > fromDateStr(_prevWeekKey) ? 'left' : 'right';
         }
         _prevWeekKey = newWeekKey;
-        renderWeekCalendar(weekView, weekDates, currentDate, todayStr(), dir);
+        renderWeekCalendar(weekView, weekDates, currentDate, todayStr(), dir, scheduledDates);
 
     } else if (currentView === 'month') {
         headerDate.textContent = `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`;
@@ -336,7 +344,7 @@ function render(slideDir = null) {
         monthView.classList.remove('view-hidden');
         yearView.classList.add('view-hidden');
 
-        renderMonthCalendar(monthView, currentDate);
+        renderMonthCalendar(monthView, currentDate, scheduledDates);
 
     } else if (currentView === 'year') {
         headerDate.textContent = `${currentDate.getFullYear()}年`;

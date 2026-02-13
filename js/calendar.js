@@ -80,7 +80,7 @@ export function getWeekDates(centerDate, weekStartDay = 0) {
  * @param {string} todayStr
  * @param {'left'|'right'|null} slideDirection - Animation direction
  */
-export function renderWeekCalendar(container, weekDates, selectedDate, todayStr, slideDirection = null) {
+export function renderWeekCalendar(container, weekDates, selectedDate, todayStr, slideDirection = null, scheduledDates = new Set()) {
     const buildInner = () => {
         const inner = document.createElement('div');
         inner.className = 'week-calendar-inner';
@@ -104,6 +104,7 @@ export function renderWeekCalendar(container, weekDates, selectedDate, todayStr,
             numWrap.className = 'week-day-num';
             if (isToday) numWrap.classList.add('today');
             if (isSelected) numWrap.classList.add('selected');
+            if (scheduledDates.has(ds)) numWrap.classList.add('has-task');
             numWrap.textContent = d.getDate();
 
             if (holiday) {
@@ -155,7 +156,7 @@ export function renderWeekCalendar(container, weekDates, selectedDate, todayStr,
  * @param {HTMLElement} container
  * @param {Date} yearMonth - Date object representing the month
  */
-export function renderMonthCalendar(container, yearMonth) {
+export function renderMonthCalendar(container, yearMonth, scheduledDates = new Set()) {
     container.innerHTML = '';
 
     // Header row (Sun Mon Tue...)
@@ -200,6 +201,7 @@ export function renderMonthCalendar(container, yearMonth) {
         const numSpan = document.createElement('span');
         numSpan.className = 'month-day-num';
         numSpan.textContent = d.getDate();
+        if (scheduledDates.has(ds)) numSpan.classList.add('has-task');
         cell.appendChild(numSpan);
         cell.dataset.date = ds;
 

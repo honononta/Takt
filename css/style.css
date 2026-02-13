@@ -1345,11 +1345,39 @@ input[type="time"].form-input {
 }
 
 /* Year View Mini Calendar */
+.year-calendar {
+  padding: 10px 4px;
+  /* Reduced padding */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  /* Reduced gap */
+  width: 100%;
+  box-sizing: border-box;
+  /* Bug fix precaution */
+}
+
 .year-cell {
   flex-direction: column;
   justify-content: start;
   padding: 2px;
-  /* Reduced for more space */
+  width: 100%;
+  /* Ensure full width in grid cell */
+  box-sizing: border-box;
+}
+
+.year-cell.current-month {
+  background: transparent;
+  /* Remove fill */
+  border: 2px solid var(--color-accent);
+  /* Add border */
+  color: inherit;
+  /* Restore text color */
+}
+
+/* Ensure text contrast for current month if needed, but border is sufficient */
+.year-cell.current-month .year-month-title {
+  color: var(--color-accent);
 }
 
 .year-month-title {
@@ -1365,16 +1393,16 @@ input[type="time"].form-input {
   grid-template-columns: repeat(7, 1fr);
   width: 100%;
   gap: 0;
-  /* No gap to prevent overflow */
-  padding: 0 2px;
+  padding: 0 1px;
+  box-sizing: border-box;
 }
 
 .mini-day {
   font-size: 8px;
+  /* Ensure tiny text */
   text-align: center;
   color: var(--color-text);
   aspect-ratio: 1;
-  /* Keep square */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1384,6 +1412,34 @@ input[type="time"].form-input {
 .mini-day.other-month {
   color: var(--color-text-secondary);
   opacity: 0.3;
+}
+
+/* Task Indicator Dots */
+.week-day-num,
+.month-day-num {
+  position: relative;
+}
+
+.week-day-num.has-task::after,
+.month-day-num.has-task::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-text-secondary);
+  /* Text color for visibility */
+  border-radius: 50%;
+}
+
+/* Adjust position for Week view which has circle for today */
+.week-day-num.today.has-task::after,
+.month-day-num.today.has-task::after {
+  background-color: #fff;
+  /* White dot on primary bg */
+  bottom: 3px;
 }
 
 /* Fade Transition (Simple Cross-Fade) */
@@ -1420,5 +1476,7 @@ input[type="time"].form-input {
   top: 0;
   left: 0;
   width: 100%;
-  /* height managed via JS */
+  height: 100%;
+  box-sizing: border-box;
+  /* Important for absolute positioning */
 }
