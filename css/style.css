@@ -118,6 +118,8 @@ body.sheet-open .header {
   height: env(safe-area-inset-top, 0px);
   background: var(--color-bg);
   flex-shrink: 0;
+  position: relative;
+  z-index: 200;
 }
 
 /* ===== ヘッダー ===== */
@@ -634,11 +636,18 @@ body.sheet-open .header {
 .overlay {
   position: fixed;
   inset: 0;
-  background: var(--color-overlay);
+  background: transparent;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
   z-index: 90;
+}
+
+.overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
 }
 
 .overlay.active {

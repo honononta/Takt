@@ -2,7 +2,6 @@
  * someday.js — "いつかやる" bottom-sheet logic
  */
 import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
-import { refreshThemeColor } from './app.js';
 
 const overlay = document.getElementById('somedayOverlay');
 const sheet = document.getElementById('somedaySheet');
@@ -30,7 +29,6 @@ export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
     document.body.classList.remove('sheet-open');
-    refreshThemeColor();
 }
 
 export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {

@@ -516,7 +516,6 @@ function closeTaskForm() {
     taskOverlay.classList.remove('active');
     taskSheet.classList.remove('active');
     document.body.classList.remove('sheet-open');
-    refreshThemeColor();
 }
 
 async function saveTaskFromForm() {
@@ -581,18 +580,6 @@ async function onSettingsClose() {
     document.documentElement.setAttribute('data-theme', settings.theme);
     await loadHolidays();
     render();
-}
-
-// theme-colorリフレッシュ（モバイルブラウザのステータスバー色を強制再計算）
-export function refreshThemeColor() {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-        const color = meta.content;
-        meta.content = '';
-        requestAnimationFrame(() => {
-            meta.content = color;
-        });
-    }
 }
 
 // ===== Start =====
