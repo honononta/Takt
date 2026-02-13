@@ -331,6 +331,11 @@ function render(slideDir = null) {
         const newWeekKey = toDateStr(weekDates[0]);
         let dir = slideDir;
 
+        // Suppress animation if week hasn't changed
+        if (_prevWeekKey !== null && newWeekKey === _prevWeekKey) {
+            dir = null;
+        }
+
         if (!dir && _prevWeekKey !== null && newWeekKey !== _prevWeekKey) {
             dir = fromDateStr(newWeekKey) > fromDateStr(_prevWeekKey) ? 'left' : 'right';
         }
