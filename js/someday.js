@@ -2,7 +2,8 @@
  * someday.js — "いつかやる" bottom-sheet logic
  */
 import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
-import { lockScroll, unlockScroll } from './app.js';
+import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
+import { lockScroll, unlockScroll } from './scrollLock.js';
 
 const overlay = document.getElementById('somedayOverlay');
 const sheet = document.getElementById('somedaySheet');

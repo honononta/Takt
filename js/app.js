@@ -14,6 +14,7 @@ import {
 import { initSomeday, renderSomedayList } from './someday.js';
 import { initSettings } from './settings.js';
 import { initSwipe } from './swipe.js';
+import { lockScroll, unlockScroll } from './scrollLock.js';
 
 // ===== State =====
 let currentDate = new Date();
@@ -21,89 +22,10 @@ let currentView = 'week'; // 'week', 'month', 'year'
 let allTasks = [];
 let settings = {};
 let _prevWeekKey = null; // 前回描画した週の識別キー
-let _savedScrollTop = 0; // シート開閉時のスクロール位置保存
-let _sheetActive = false; // シートが表示中かどうか
 
 const todayStr = () => toDateStr(new Date());
 
-// ===== Scroll Lock (iOS Safari 裏スクロール防止) =====
-
-// touchmove ハンドラ: シート表示中にシート外のスクロールを防止
-function _handleTouchMove(e) {
-    if (!_sheetActive) return;
-    // シート内(.sheet-body)のスクロールは許可
-    const sheetBody = e.target.closest('.sheet-body');
-    if (sheetBody) {
-        const isScrollable = sheetBody.scrollHeight > sheetBody.clientHeight;
-        if (isScrollable) return;
-    }
-    e.preventDefault();
-}
-
-// フォーカス/ブラー ハンドラ: シート内inputへのフォーカス時にスクロール
-function _handleSheetFocusIn(e) {
-    if (!_sheetActive) return;
-    const input = e.target;
-    if (!input || !input.closest('.bottom-sheet')) return;
-    const sheetBody = input.closest('.sheet-body');
-    if (!sheetBody) return;
-
-    // キーボードが出た後にスクロール（少し待つ）
-    setTimeout(() => {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        window.scrollTo(0, 0);
-    }, 350);
-}
-
-function _handleSheetFocusOut() {
-    if (!_sheetActive) return;
-    // 背面のスクロール位置をリセット
-    setTimeout(() => {
-        window.scrollTo(0, 0);
-    }, 100);
-}
-
-// visualViewport scroll ハンドラ: 裏のスクロールを常にリセット
-function _handleVVScroll() {
-    if (_sheetActive) window.scrollTo(0, 0);
-}
-
-export function lockScroll() {
-    _savedScrollTop = taskArea ? taskArea.scrollTop : 0;
-    _sheetActive = true;
-    document.body.style.top = '0px';
-    document.body.classList.add('sheet-open');
-
-    // touchmove 防止（passive: false が必須）
-    document.addEventListener('touchmove', _handleTouchMove, { passive: false });
-
-    // フォーカス/ブラー 監視
-    document.addEventListener('focusin', _handleSheetFocusIn);
-    document.addEventListener('focusout', _handleSheetFocusOut);
-
-    // visualViewport scroll 監視（裏スクロール防止のみ）
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('scroll', _handleVVScroll);
-    }
-}
-
-export function unlockScroll() {
-    _sheetActive = false;
-    document.body.classList.remove('sheet-open');
-    document.body.style.top = '';
-    if (taskArea) taskArea.scrollTop = _savedScrollTop;
-
-    // リスナー解除
-    document.removeEventListener('touchmove', _handleTouchMove);
-    document.removeEventListener('focusin', _handleSheetFocusIn);
-    document.removeEventListener('focusout', _handleSheetFocusOut);
-    if (window.visualViewport) {
-        window.visualViewport.removeEventListener('scroll', _handleVVScroll);
-    }
-
-    // 最終スクロールリセット
-    window.scrollTo(0, 0);
-}
+// ===== DOM =====
 
 // ===== DOM =====
 const headerDate = document.getElementById('headerDate');

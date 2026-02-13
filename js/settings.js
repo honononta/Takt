@@ -2,7 +2,8 @@
  * settings.js — Settings sheet logic (通知・祝日設定を削除)
  */
 import { getAllSettings, setSetting } from './db.js';
-import { lockScroll, unlockScroll } from './app.js';
+import { getAllSettings, setSetting } from './db.js';
+import { lockScroll, unlockScroll } from './scrollLock.js';
 
 let _onClose = null;
 
