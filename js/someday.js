@@ -1,40 +1,97 @@
 /**
- * someday.js — "いつかやる" bottom-sheet logic
+ * someday.js — "いつかやる" persistent panel with drag-to-resize
  */
 import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
-import { lockScroll, unlockScroll } from './scrollLock.js';
 
-const overlay = document.getElementById('somedayOverlay');
-const sheet = document.getElementById('somedaySheet');
+const panel = document.getElementById('somedayPanel');
+const handle = document.getElementById('somedayHandle');
 const list = document.getElementById('somedayList');
-const openBtn = document.getElementById('somedayBtn');
-const closeBtn = document.getElementById('somedayClose');
+const countEl = document.getElementById('somedayCount');
 
 let _onTaskClick = null;
+
+// ===== Drag state =====
+let _isDragging = false;
+let _startY = 0;
+let _startHeight = 0;
+const MIN_HEIGHT = 48;
+const MAX_HEIGHT_RATIO = 0.5; // 50vh
 
 export function initSomeday(onTaskClick) {
     _onTaskClick = onTaskClick;
 
-    openBtn.addEventListener('click', open);
-    closeBtn.addEventListener('click', close);
-    overlay.addEventListener('click', close);
+    // Drag handle events (touch)
+    handle.addEventListener('touchstart', _onDragStart, { passive: false });
+    document.addEventListener('touchmove', _onDragMove, { passive: false });
+    document.addEventListener('touchend', _onDragEnd);
+
+    // Drag handle events (mouse)
+    handle.addEventListener('mousedown', _onDragStart);
+    document.addEventListener('mousemove', _onDragMove);
+    document.addEventListener('mouseup', _onDragEnd);
 }
 
-export function open() {
-    overlay.classList.add('active');
-    sheet.classList.add('active');
-    lockScroll();
+// ===== Show / Hide (for other sheet coordination) =====
+
+export function hide() {
+    panel.classList.add('hidden');
 }
 
-export function close() {
-    overlay.classList.remove('active');
-    sheet.classList.remove('active');
-    unlockScroll();
+export function show() {
+    panel.classList.remove('hidden');
 }
+
+// ===== Drag handlers =====
+
+function _onDragStart(e) {
+    _isDragging = true;
+    _startY = _getY(e);
+    _startHeight = panel.offsetHeight;
+
+    // Disable transition during drag for smooth feel
+    panel.style.transition = 'none';
+
+    if (e.type === 'touchstart') {
+        e.preventDefault();
+    }
+}
+
+function _onDragMove(e) {
+    if (!_isDragging) return;
+
+    const currentY = _getY(e);
+    const deltaY = _startY - currentY; // positive = dragging up = making taller
+    const maxHeight = window.innerHeight * MAX_HEIGHT_RATIO;
+    const newHeight = Math.max(MIN_HEIGHT, Math.min(maxHeight, _startHeight + deltaY));
+
+    panel.style.height = newHeight + 'px';
+
+    if (e.cancelable) e.preventDefault();
+}
+
+function _onDragEnd() {
+    if (!_isDragging) return;
+    _isDragging = false;
+
+    // Restore transition
+    panel.style.transition = '';
+}
+
+function _getY(e) {
+    if (e.touches && e.touches.length > 0) {
+        return e.touches[0].clientY;
+    }
+    return e.clientY;
+}
+
+// ===== Render =====
 
 export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
     const someday = getSomedayTasks(allTasks);
     const sorted = sortSomedayTasks(someday, n1, n2);
+
+    // Update count
+    countEl.textContent = sorted.length > 0 ? `${sorted.length}件` : '';
 
     list.innerHTML = '';
 
@@ -85,7 +142,6 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
         card.appendChild(metaEl);
 
         card.addEventListener('click', () => {
-            close();
             if (_onTaskClick) _onTaskClick(task);
         });
 

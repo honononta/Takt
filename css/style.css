@@ -573,52 +573,82 @@ body.sheet-open .header {
   color: var(--color-text-secondary);
 }
 
-/* ===== フッター ===== */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+/* ===== いつかやるパネル（常時表示） ===== */
+.someday-panel {
+  flex-shrink: 0;
   background: var(--color-footer-bg);
   border-top: 1px solid var(--color-footer-border);
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+  min-height: 48px;
+  max-height: 50vh;
+  z-index: 10;
+  transition: height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-.someday-btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--color-button-border);
-  background: var(--color-someday-bg);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-someday-text);
-  cursor: pointer;
+.someday-panel.hidden {
+  height: 0 !important;
+  min-height: 0;
+  opacity: 0;
+  border-top: none;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.someday-panel-handle {
+  cursor: ns-resize;
+  touch-action: none;
+  flex-shrink: 0;
+  padding: 6px 16px 4px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.someday-panel-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  margin: 0 auto 6px;
+}
+
+.someday-panel-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: transform 0.1s, background 0.15s;
+  gap: 8px;
 }
 
-.someday-btn:active {
-  transform: scale(0.95);
-  background: var(--color-border);
+.someday-panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
-.someday-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: var(--color-someday-text);
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.someday-panel-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
+.someday-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0 16px 8px;
+}
+
+/* ===== タスク追加ボタン（フローティング） ===== */
 .add-btn {
-  width: 48px;
-  height: 48px;
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 52px;
+  height: 52px;
   border-radius: var(--radius-btn);
   border: none;
   background: var(--color-add-bg);
@@ -626,13 +656,14 @@ body.sheet-open .header {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s, box-shadow 0.15s;
+  z-index: 50;
 }
 
 .add-btn:active {
   transform: scale(0.92);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .add-btn svg {

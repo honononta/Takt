@@ -94,41 +94,27 @@
     </div>
   </div>
 
-  <!-- ④ フッター -->
-  <footer class="footer">
-    <button class="someday-btn" id="somedayBtn">
-      <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"></circle>
-        <polyline points="12 6 12 12 16 14"></polyline>
-      </svg>
-      いつかやる
-    </button>
-    <button class="add-btn" id="addBtn" aria-label="タスク追加">
-      <svg viewBox="0 0 24 24">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-    </button>
-  </footer>
-
-  <!-- いつかやるボトムシート -->
-  <div class="overlay" id="somedayOverlay"></div>
-  <div class="bottom-sheet" id="somedaySheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 class="sheet-title">いつかやる</h2>
-      <button class="sheet-close" id="somedayClose" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+  <!-- ④ いつかやるパネル（常時表示） -->
+  <div class="someday-panel" id="somedayPanel">
+    <div class="someday-panel-handle" id="somedayHandle">
+      <div class="someday-panel-bar"></div>
+      <div class="someday-panel-header">
+        <span class="someday-panel-title">いつかやる</span>
+        <span class="someday-panel-count" id="somedayCount"></span>
+      </div>
     </div>
-    <div class="sheet-body" id="somedayList">
+    <div class="someday-panel-body" id="somedayList">
       <!-- JS で動的に生成 -->
     </div>
   </div>
+
+  <!-- ⑤ タスク追加ボタン（フローティング） -->
+  <button class="add-btn" id="addBtn" aria-label="タスク追加">
+    <svg viewBox="0 0 24 24">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
 
   <!-- タスク追加/編集モーダル -->
   <div class="overlay" id="taskOverlay"></div>
