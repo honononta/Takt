@@ -833,6 +833,20 @@ body.sheet-open .header {
   transition: border-color 0.2s;
   touch-action: manipulation;
   max-width: 100%;
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* iOS日付・時刻入力の特別対応 */
+input[type="date"].form-input,
+input[type="time"].form-input {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  background-color: var(--color-bg);
 }
 
 .form-input:focus {
