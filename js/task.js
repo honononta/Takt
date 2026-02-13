@@ -208,6 +208,13 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
         const r = task.recurrence;
         const exceptions = r.exceptions || {};
 
+        // Recurrence start date = task's scheduledDate (the date the user set)
+        const taskStartDate = task.scheduledDate ? new Date(task.scheduledDate) : new Date(startDate);
+        taskStartDate.setHours(0, 0, 0, 0);
+
+        // Effective start date (max of view start vs task start)
+        const effectiveStartDate = taskStartDate > startDate ? taskStartDate : new Date(startDate);
+
         // Effective end date (min of view end vs recurrence end)
         let effectiveEndDate = new Date(viewEndDate);
         if (r.until) {
@@ -218,11 +225,11 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
             }
         }
 
-        // If recurrence ends before window starts, skip
-        if (effectiveEndDate < startDate) return;
+        // If recurrence ends before effective start, skip
+        if (effectiveEndDate < effectiveStartDate) return;
 
         if (r.type === 'daily') {
-            let d = new Date(startDate);
+            let d = new Date(effectiveStartDate);
             while (d <= effectiveEndDate) {
                 const dayOfWeek = d.getDay();
                 if (!r.excludeDays || !r.excludeDays.includes(dayOfWeek)) {
@@ -232,7 +239,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
             }
         }
         else if (r.type === 'weekly') {
-            let d = new Date(startDate);
+            let d = new Date(effectiveStartDate);
             while (d <= effectiveEndDate) {
                 const dayOfWeek = d.getDay();
                 if (r.daysOfWeek && r.daysOfWeek.includes(dayOfWeek)) {
@@ -243,7 +250,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
         }
         else if (r.type === 'monthly') {
             const targetDay = parseInt(r.dayOfMonth, 10);
-            let d = new Date(startDate);
+            let d = new Date(effectiveStartDate);
             // Start from 1st of start month to handle shift/avoid correctly
             d.setDate(1);
 
@@ -259,7 +266,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
                 // Apply avoid
                 let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
 
-                if (finalDate >= startDate && finalDate <= effectiveEndDate) {
+                if (finalDate >= effectiveStartDate && finalDate <= effectiveEndDate) {
                     addInstance(task, finalDate, exceptions, result);
                 }
 
@@ -271,7 +278,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
             const targetMonth = parseInt(r.month, 10) - 1; // 0-11
             const targetDay = parseInt(r.dayOfMonth, 10);
 
-            let y = startDate.getFullYear();
+            let y = effectiveStartDate.getFullYear();
             const endY = effectiveEndDate.getFullYear();
 
             for (let year = y; year <= endY; year++) {
@@ -287,7 +294,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
                 // Apply avoid
                 let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
 
-                if (finalDate >= startDate && finalDate <= effectiveEndDate) {
+                if (finalDate >= effectiveStartDate && finalDate <= effectiveEndDate) {
                     addInstance(task, finalDate, exceptions, result);
                 }
             }
