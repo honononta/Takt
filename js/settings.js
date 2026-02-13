@@ -56,6 +56,12 @@ export async function open() {
     const overlay = document.getElementById('settingsOverlay');
     const sheet = document.getElementById('settingsSheet');
 
+    // 先にモーダルを表示（CSSトランジションを正しく発火させる）
+    if (overlay) overlay.classList.add('active');
+    if (sheet) sheet.classList.add('active');
+    lockScroll();
+
+    // 非同期でデータを取得してフォームに反映
     const s = await getAllSettings();
     const themeEl = document.getElementById('settingTheme');
     if (themeEl) themeEl.value = s.theme;
@@ -68,10 +74,6 @@ export async function open() {
 
     const n2El = document.getElementById('settingN2');
     if (n2El) n2El.value = s.scoreThresholdN2;
-
-    if (overlay) overlay.classList.add('active');
-    if (sheet) sheet.classList.add('active');
-    lockScroll();
 }
 
 export function close() {
