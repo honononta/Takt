@@ -4,18 +4,21 @@
 import { getAllSettings, setSetting } from './db.js';
 import { lockScroll, unlockScroll } from './scrollLock.js';
 
+// someday.js と同様にモジュールレベルでDOM要素をキャッシュ
+const overlay = document.getElementById('settingsOverlay');
+const sheet   = document.getElementById('settingsSheet');
+
 let _onClose = null;
 
 export function initSettings(onClose) {
     _onClose = onClose;
 
     const btn = document.getElementById('settingsBtn');
-    if (btn) btn.addEventListener('click', open);
+    if (btn) btn.addEventListener('click', () => open());
 
     const closeBtn = document.getElementById('settingsClose');
     if (closeBtn) closeBtn.addEventListener('click', close);
 
-    const overlay = document.getElementById('settingsOverlay');
     if (overlay) overlay.addEventListener('click', close);
 
     // Theme
@@ -52,17 +55,19 @@ export function initSettings(onClose) {
     }
 }
 
-export async function open() {
-    const overlay = document.getElementById('settingsOverlay');
-    const sheet = document.getElementById('settingsSheet');
-
-    // 先にモーダルを表示（CSSトランジションを正しく発火させる）
-    if (overlay) overlay.classList.add('active');
-    if (sheet) sheet.classList.add('active');
+// 同期的にシートを表示してから非同期でデータを反映
+export function open() {
+    overlay.classList.add('active');
+    sheet.classList.add('active');
     lockScroll();
 
-    // 非同期でデータを取得してフォームに反映
+    // フォームの値を非同期で反映（表示はブロックしない）
+    _populateForm();
+}
+
+async function _populateForm() {
     const s = await getAllSettings();
+
     const themeEl = document.getElementById('settingTheme');
     if (themeEl) themeEl.value = s.theme;
 
@@ -77,11 +82,8 @@ export async function open() {
 }
 
 export function close() {
-    const overlay = document.getElementById('settingsOverlay');
-    const sheet = document.getElementById('settingsSheet');
-
-    if (overlay) overlay.classList.remove('active');
-    if (sheet) sheet.classList.remove('active');
+    overlay.classList.remove('active');
+    sheet.classList.remove('active');
     unlockScroll();
     if (_onClose) _onClose();
 }
