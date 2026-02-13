@@ -505,6 +505,7 @@ function openTaskForm(task = null) {
 
     taskOverlay.classList.add('active');
     taskSheet.classList.add('active');
+    document.body.classList.add('sheet-open');
     // アニメーション完了後にフォーカス（スクロールジャンプ防止）
     setTimeout(() => {
         nameInput.focus({ preventScroll: true });
@@ -514,6 +515,7 @@ function openTaskForm(task = null) {
 function closeTaskForm() {
     taskOverlay.classList.remove('active');
     taskSheet.classList.remove('active');
+    document.body.classList.remove('sheet-open');
 }
 
 async function saveTaskFromForm() {

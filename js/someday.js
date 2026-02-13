@@ -22,11 +22,13 @@ export function initSomeday(onTaskClick) {
 export function open() {
     overlay.classList.add('active');
     sheet.classList.add('active');
+    document.body.classList.add('sheet-open');
 }
 
 export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
+    document.body.classList.remove('sheet-open');
 }
 
 export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {

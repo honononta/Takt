@@ -99,6 +99,20 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+body.sheet-open {
+  touch-action: none;
+}
+
+body.sheet-open .task-area {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+body.sheet-open .week-calendar,
+body.sheet-open .header {
+  pointer-events: none;
+}
+
 /* ===== セーフエリア ===== */
 .safe-area-top {
   height: env(safe-area-inset-top, 0px);
@@ -113,6 +127,7 @@ body {
   justify-content: space-between;
   padding: 8px 16px 10px;
   flex-shrink: 0;
+  background: var(--color-bg);
 }
 
 .header-date {
@@ -134,7 +149,7 @@ body {
   height: 34px;
   border-radius: var(--radius-btn);
   border: 1.5px solid var(--color-button-border);
-  background: transparent;
+  background: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,7 +177,7 @@ body {
   padding: 0 14px;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--color-button-border);
-  background: transparent;
+  background: var(--color-bg);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
@@ -180,7 +195,7 @@ body {
   height: 34px;
   border-radius: var(--radius-btn);
   border: 1.5px solid var(--color-button-border);
-  background: transparent;
+  background: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -645,6 +660,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow-x: hidden;
 }
 
 .bottom-sheet.active {
@@ -699,7 +715,9 @@ body {
 .sheet-body {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 0 16px 16px;
 }
 

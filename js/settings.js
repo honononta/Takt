@@ -45,10 +45,12 @@ export async function open() {
 
     overlay.classList.add('active');
     sheet.classList.add('active');
+    document.body.classList.add('sheet-open');
 }
 
 export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
+    document.body.classList.remove('sheet-open');
     if (_onClose) _onClose();
 }
