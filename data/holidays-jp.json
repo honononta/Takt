@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "country": "JP",
+    "name": "日本の祝日",
+    "description": "日本の国民の祝日データ。repeatがtrueの場合は毎年同じ日付で繰り返す固定祝日。falseの場合はハッピーマンデー等の変動祝日で年ごとに日付が異なる。",
+    "version": "2026-01"
+  },
+  "holidays": [
+    {
+      "id": "newyear",
+      "date": "01-01",
+      "name": "元日",
+      "repeat": true
+    },
+    {
+      "id": "coming-of-age-2026",
+      "date": "2026-01-12",
+      "name": "成人の日",
+      "repeat": false
+    },
+    {
+      "id": "national-foundation",
+      "date": "02-11",
+      "name": "建国記念の日",
+      "repeat": true
+    },
+    {
+      "id": "emperors-birthday",
+      "date": "02-23",
+      "name": "天皇誕生日",
+      "repeat": true
+    },
+    {
+      "id": "vernal-equinox-2026",
+      "date": "2026-03-20",
+      "name": "春分の日",
+      "repeat": false
+    },
+    {
+      "id": "showa",
+      "date": "04-29",
+      "name": "昭和の日",
+      "repeat": true
+    },
+    {
+      "id": "constitution",
+      "date": "05-03",
+      "name": "憲法記念日",
+      "repeat": true
+    },
+    {
+      "id": "greenery",
+      "date": "05-04",
+      "name": "みどりの日",
+      "repeat": true
+    },
+    {
+      "id": "childrens",
+      "date": "05-05",
+      "name": "こどもの日",
+      "repeat": true
+    },
+    {
+      "id": "marine-2026",
+      "date": "2026-07-20",
+      "name": "海の日",
+      "repeat": false
+    },
+    {
+      "id": "mountain",
+      "date": "08-11",
+      "name": "山の日",
+      "repeat": true
+    },
+    {
+      "id": "respect-aged-2026",
+      "date": "2026-09-21",
+      "name": "敬老の日",
+      "repeat": false
+    },
+    {
+      "id": "autumnal-equinox-2026",
+      "date": "2026-09-23",
+      "name": "秋分の日",
+      "repeat": false
+    },
+    {
+      "id": "sports-2026",
+      "date": "2026-10-12",
+      "name": "スポーツの日",
+      "repeat": false
+    },
+    {
+      "id": "culture",
+      "date": "11-03",
+      "name": "文化の日",
+      "repeat": true
+    },
+    {
+      "id": "labor-thanksgiving",
+      "date": "11-23",
+      "name": "勤労感謝の日",
+      "repeat": true
+    },
+    {
+      "id": "coming-of-age-2027",
+      "date": "2027-01-11",
+      "name": "成人の日",
+      "repeat": false
+    },
+    {
+      "id": "vernal-equinox-2027",
+      "date": "2027-03-21",
+      "name": "春分の日",
+      "repeat": false
+    },
+    {
+      "id": "marine-2027",
+      "date": "2027-07-19",
+      "name": "海の日",
+      "repeat": false
+    },
+    {
+      "id": "respect-aged-2027",
+      "date": "2027-09-20",
+      "name": "敬老の日",
+      "repeat": false
+    },
+    {
+      "id": "autumnal-equinox-2027",
+      "date": "2027-09-23",
+      "name": "秋分の日",
+      "repeat": false
+    },
+    {
+      "id": "sports-2027",
+      "date": "2027-10-11",
+      "name": "スポーツの日",
+      "repeat": false
+    }
+  ]
+}

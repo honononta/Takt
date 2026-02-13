@@ -1,0 +1,929 @@
+/* ===========================
+   Takt — Design System & Styles
+   =========================== */
+
+:root {
+  /* ライトモード（デフォルト） */
+  --color-bg: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #888888;
+  --color-border: #e5e5e5;
+  --color-button-bg: #f5f5f5;
+  --color-button-border: #d5d5d5;
+  --color-accent: #1a1a1a;
+  --color-accent-text: #ffffff;
+  --color-footer-bg: #fafafa;
+  --color-footer-border: #e5e5e5;
+  --color-someday-bg: #f5f5f5;
+  --color-someday-text: #1a1a1a;
+  --color-add-bg: #1a1a1a;
+  --color-add-text: #ffffff;
+  --color-empty: #c0c0c0;
+
+  --color-card-bg: #f7f7f7;
+  --color-card-border: #e5e5e5;
+
+  --color-booking-bg: #fff0f0;
+  --color-booking-border: #e08080;
+  --color-booking-badge: #cc4444;
+
+  --color-timeline-dot: #1a1a1a;
+  --color-timeline-line: #d5d5d5;
+
+  --color-holiday: #e85050;
+
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-sheet-bg: #ffffff;
+
+  --color-danger: #e04040;
+  --color-danger-hover: #c03030;
+
+  --radius-card: 12px;
+  --radius-btn: 50%;
+  --radius-pill: 20px;
+  --radius-sheet: 16px;
+}
+
+/* ダークモード */
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-text: #e0e0e0;
+  --color-text-secondary: #808080;
+  --color-border: #2e2e2e;
+  --color-button-bg: #1e1e1e;
+  --color-button-border: #3a3a3a;
+  --color-accent: #e0e0e0;
+  --color-accent-text: #121212;
+  --color-footer-bg: #161616;
+  --color-footer-border: #2e2e2e;
+  --color-someday-bg: #1e1e1e;
+  --color-someday-text: #e0e0e0;
+  --color-add-bg: #e0e0e0;
+  --color-add-text: #121212;
+  --color-empty: #555555;
+
+  --color-card-bg: #1e1e1e;
+  --color-card-border: #2e2e2e;
+
+  --color-booking-bg: #2d1a1a;
+  --color-booking-border: #804040;
+  --color-booking-badge: #e06060;
+
+  --color-timeline-dot: #e0e0e0;
+  --color-timeline-line: #3a3a3a;
+
+  --color-holiday: #f07070;
+
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-sheet-bg: #1a1a1a;
+}
+
+/* ===== リセット ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* ===== セーフエリア ===== */
+.safe-area-top {
+  height: env(safe-area-inset-top, 0px);
+  background: var(--color-bg);
+  flex-shrink: 0;
+}
+
+/* ===== ヘッダー ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 10px;
+  flex-shrink: 0;
+}
+
+.header-date {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-btn);
+  border: 1.5px solid var(--color-button-border);
+  background: var(--color-button-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+}
+.nav-btn:active {
+  transform: scale(0.92);
+  background: var(--color-border);
+}
+.nav-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--color-text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.today-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-button-border);
+  background: var(--color-button-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+}
+.today-btn:active {
+  transform: scale(0.95);
+  background: var(--color-border);
+}
+
+.settings-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-btn);
+  border: 1.5px solid var(--color-button-border);
+  background: var(--color-button-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: transform 0.1s, background 0.15s;
+}
+.settings-btn:active {
+  transform: scale(0.92);
+  background: var(--color-border);
+}
+.settings-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== 週カレンダー ===== */
+.week-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 12px 10px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.week-day:active {
+  background: var(--color-button-bg);
+}
+
+.week-day-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.week-day-num {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  position: relative;
+}
+
+.week-day-num.today {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 700;
+}
+
+.week-day-num.selected:not(.today) {
+  border: 2px solid var(--color-accent);
+}
+
+.week-day .holiday-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-holiday);
+  position: absolute;
+  bottom: 2px;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 16px;
+  flex-shrink: 0;
+}
+
+/* ===== タスクエリア ===== */
+.task-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 時間未定枠 */
+.unscheduled-section {
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.unscheduled-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.unscheduled-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.unscheduled-card {
+  background: var(--color-card-bg);
+  border: 1.5px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.unscheduled-card:active {
+  transform: scale(0.98);
+}
+.unscheduled-card .task-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.unscheduled-card .task-meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+/* タイムライン */
+.timeline {
+  padding: 12px 16px 24px 0;
+}
+
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.time-gutter {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.time-gutter-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+}
+
+.time-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gutter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-timeline-dot);
+  flex-shrink: 0;
+}
+
+.gutter-line {
+  width: 1.5px;
+  background: var(--color-timeline-line);
+  flex: 1;
+  margin-right: 3px;
+  align-self: flex-end;
+  min-height: 10px;
+}
+
+.card-area {
+  flex: 1;
+  padding-left: 12px;
+}
+
+/* タスクカード */
+.task-card {
+  background: var(--color-card-bg);
+  border: 1.5px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.task-card:active {
+  transform: scale(0.98);
+}
+
+.task-card .task-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.task-card .task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.task-card .task-start,
+.task-card .task-duration {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.meta-separator {
+  font-size: 12px;
+  color: var(--color-border);
+}
+
+/* ブッキング */
+.task-card.booking {
+  background: var(--color-booking-bg);
+  border-color: var(--color-booking-border);
+}
+
+.booking-badge {
+  display: none;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-booking-badge);
+  letter-spacing: 0.3px;
+  margin-left: auto;
+  border: 1.5px solid var(--color-booking-border);
+  border-radius: 10px;
+  padding: 1px 8px;
+  line-height: 1.6;
+}
+
+.task-card.booking .booking-badge {
+  display: inline-block;
+}
+
+.task-card.booking.approved {
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+.task-card.booking.approved .booking-badge {
+  color: var(--color-text-secondary);
+  border-color: var(--color-button-border);
+}
+
+/* 空きカード */
+.task-card.empty-card {
+  background: transparent;
+  border: 1.5px dashed var(--color-border);
+  cursor: default;
+}
+.task-card.empty-card .task-name {
+  color: var(--color-empty);
+  font-weight: 400;
+  font-size: 13px;
+}
+.task-card.empty-card .task-start,
+.task-card.empty-card .task-duration,
+.task-card.empty-card .meta-separator {
+  color: var(--color-empty);
+}
+
+.task-row.empty-row .gutter-dot {
+  background: var(--color-empty);
+  width: 5px;
+  height: 5px;
+}
+
+/* タイムライン空状態 */
+.timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+}
+.timeline-empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+}
+.timeline-empty-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== フッター ===== */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--color-footer-bg);
+  border-top: 1px solid var(--color-footer-border);
+  flex-shrink: 0;
+}
+
+.someday-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-button-border);
+  background: var(--color-someday-bg);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-someday-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.1s, background 0.15s;
+}
+.someday-btn:active {
+  transform: scale(0.95);
+  background: var(--color-border);
+}
+.someday-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-someday-text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.add-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--color-add-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.add-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.add-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--color-add-text);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ===== オーバーレイ & ボトムシート ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 90;
+}
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-sheet-bg);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 100;
+  max-height: 85dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-sheet.active {
+  transform: translateY(0);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  margin: 10px auto 4px;
+  flex-shrink: 0;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+  flex-shrink: 0;
+}
+
+.sheet-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.sheet-close {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--color-button-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.sheet-close svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-text-secondary);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 16px;
+}
+
+/* いつかやるリスト内のカード */
+.someday-card {
+  background: var(--color-card-bg);
+  border: 1.5px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.someday-card:active {
+  transform: scale(0.98);
+}
+.someday-card .task-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.someday-card .someday-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.someday-card .score-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-button-bg);
+  border: 1px solid var(--color-button-border);
+  border-radius: 8px;
+  padding: 1px 8px;
+  margin-left: auto;
+}
+.someday-card .pin-icon {
+  font-size: 13px;
+}
+
+/* いつかやる空状態 */
+.someday-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* ===== フォーム ===== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus {
+  border-color: var(--color-accent);
+}
+
+.form-input-sm {
+  width: 80px;
+  padding: 6px 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.form-select-sm {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.form-radio-group {
+  display: flex;
+  gap: 4px;
+}
+
+.form-radio {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+}
+.form-radio input {
+  display: none;
+}
+.form-radio:has(input:checked) {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form-row .form-label {
+  margin-bottom: 0;
+}
+
+/* 重要度セレクタ */
+.importance-selector {
+  display: flex;
+  gap: 4px;
+}
+.importance-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.importance-btn.active {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+}
+
+/* トグルスイッチ */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.toggle input:checked + .toggle-slider {
+  background: var(--color-accent);
+}
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* ボタン */
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  flex: 1;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.btn-delete {
+  background: var(--color-danger);
+  color: #fff;
+}
+.btn-delete:active {
+  background: var(--color-danger-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* ===== 設定画面 ===== */
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-label {
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.settings-value {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== アニメーション ===== */
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
