@@ -663,19 +663,14 @@ function setupTaskForm() {
         const idStr = document.getElementById('taskId').value;
         if (!idStr) return;
 
+        if (!confirm('このタスクを削除してもよろしいですか？')) {
+            return;
+        }
+
         if (idStr.includes('_')) {
             // Instance deletion -> Add exception
             const [originalId, dateStr] = idStr.split('_');
-            // Assuming allTasks contains the original (it should if loaded)
-            // But we need to ensure we have the Original Object.
-            // allTasks contains *Instances* and *Non-Recurring*.
-            // It might NOT contain the *Original Template* if the template itself is transparent?
-            // In expandRecurringTasks, we pushed the template? 
-            // "result.push(task)" only if non-recurring!
-            // Wait! If recurrence type is NOT none, we did NOT push the original template in expandRecurringTasks!
-            // So `allTasks` does NOT contain the original template.
-            // We must fetch it from DB.
-            const originalTask = await getTaskFromDB(originalId); // Need helper or use getAllTasks().find
+            const originalTask = await getTaskFromDB(originalId);
             if (originalTask) {
                 if (!originalTask.recurrence.exceptions) originalTask.recurrence.exceptions = {};
                 originalTask.recurrence.exceptions[dateStr] = 'deleted';
@@ -694,17 +689,19 @@ function setupTaskForm() {
     // Submit (Header Save Button)
     headerSaveBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        await saveTaskFromForm();
-        closeTaskForm();
-        render();
+        if (await saveTaskFromForm()) {
+            closeTaskForm();
+            render();
+        }
     });
 
     // Submit (Form submit - Enter key etc)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await saveTaskFromForm();
-        closeTaskForm();
-        render();
+        if (await saveTaskFromForm()) {
+            closeTaskForm();
+            render();
+        }
     });
 }
 
@@ -865,7 +862,10 @@ function closeTaskForm() {
 async function saveTaskFromForm() {
     const idStr = document.getElementById('taskId').value;
     const name = document.getElementById('taskName').value.trim();
-    if (!name) return;
+    if (!name) {
+        alert('タスク名を入力してください');
+        return false;
+    }
 
     const durationSelect = document.getElementById('taskDuration');
     let duration = Number(durationSelect.value);
@@ -987,6 +987,7 @@ async function saveTaskFromForm() {
     }
 
     await loadAllTasks();
+    return true;
 }
 
 
