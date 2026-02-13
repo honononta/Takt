@@ -5,7 +5,7 @@ import { openDB, getAllTasks, saveTask, deleteTask, getAllSettings, getAllHolida
 import {
     createTask, getScheduledForDate, getUnscheduledForDate,
     getSomedayTasks, sortSomedayTasks, detectBookings, buildTimeline,
-    formatDuration, minToTime, timeToMin
+    formatDuration, minToTime, timeToMin, expandRecurringTasks
 } from './task.js';
 import {
     loadHolidays, isHoliday, getHolidayName, formatDateHeader, formatFullDate, toDateStr, fromDateStr,
@@ -143,7 +143,8 @@ async function init() {
     }
 
     // Load tasks
-    allTasks = await getAllTasks();
+    // Load tasks
+    await loadAllTasks();
 
     // Init modules
     initSomeday(onTaskClick);
@@ -478,6 +479,12 @@ function renderTimeline(entries, bookingIds) {
             const nameEl = document.createElement('div');
             nameEl.className = 'task-name';
             nameEl.textContent = task.name;
+            if (task.isInstance || (task.recurrence && task.recurrence.type !== 'none')) {
+                const icon = document.createElement('span');
+                icon.className = 'recurrence-icon';
+                icon.textContent = ' ↻';
+                nameEl.appendChild(icon);
+            }
             card.appendChild(nameEl);
 
             const meta = document.createElement('div');
@@ -612,6 +619,10 @@ function setupTaskForm() {
     taskOverlay.addEventListener('click', closeTaskForm);
     closeBtn.addEventListener('click', closeTaskForm);
 
+    // Recurrence toggle
+    const recurrenceSelect = document.getElementById('taskRecurrence');
+    recurrenceSelect.addEventListener('change', toggleRecurrenceOptions);
+
     // Duration custom toggle
     durationSelect.addEventListener('change', () => {
         customDurationGroup.style.display = durationSelect.value === 'custom' ? '' : 'none';
@@ -646,13 +657,35 @@ function setupTaskForm() {
 
     // Delete
     deleteBtn.addEventListener('click', async () => {
-        const id = document.getElementById('taskId').value;
-        if (id) {
-            await deleteTask(id);
-            allTasks = await getAllTasks();
-            closeTaskForm();
-            render();
+        const idStr = document.getElementById('taskId').value;
+        if (!idStr) return;
+
+        if (idStr.includes('_')) {
+            // Instance deletion -> Add exception
+            const [originalId, dateStr] = idStr.split('_');
+            // Assuming allTasks contains the original (it should if loaded)
+            // But we need to ensure we have the Original Object.
+            // allTasks contains *Instances* and *Non-Recurring*.
+            // It might NOT contain the *Original Template* if the template itself is transparent?
+            // In expandRecurringTasks, we pushed the template? 
+            // "result.push(task)" only if non-recurring!
+            // Wait! If recurrence type is NOT none, we did NOT push the original template in expandRecurringTasks!
+            // So `allTasks` does NOT contain the original template.
+            // We must fetch it from DB.
+            const originalTask = await getTaskFromDB(originalId); // Need helper or use getAllTasks().find
+            if (originalTask) {
+                if (!originalTask.recurrence.exceptions) originalTask.recurrence.exceptions = {};
+                originalTask.recurrence.exceptions[dateStr] = 'deleted';
+                originalTask.updatedAt = new Date().toISOString();
+                await saveTask(originalTask);
+            }
+        } else {
+            // Normal deletion
+            await deleteTask(idStr);
         }
+        await loadAllTasks();
+        closeTaskForm();
+        render();
     });
 
     // Submit (Header Save Button)
@@ -670,6 +703,12 @@ function setupTaskForm() {
         closeTaskForm();
         render();
     });
+}
+
+// Helper to get task by ID from DB (since allTasks might not have it)
+async function getTaskFromDB(id) {
+    const tasks = await getAllTasks();
+    return tasks.find(t => t.id === id);
 }
 
 function openTaskForm(task = null) {
@@ -692,12 +731,27 @@ function openTaskForm(task = null) {
     const pinnedRow = document.getElementById('taskPinnedRow');
 
     if (task) {
-        title.textContent = 'タスク編集';
+        title.textContent = task.isInstance ? 'タスク編集 (繰り返し)' : 'タスク編集';
         idInput.value = task.id;
         nameInput.value = task.name;
         memoInput.value = task.memo || '';
         pinnedInput.checked = task.pinned;
         deleteBtn.style.display = '';
+
+        // Recurrence
+        // If instance, we don't allow editing recurrence pattern here (simplification)
+        // Or we could showing it but disabled.
+        // For now, load recurrence if exists (Template), or null (Instance)
+        setRecurrenceToForm(task.recurrence);
+        if (task.isInstance) {
+            document.getElementById('taskRecurrence').disabled = true;
+            document.getElementById('recurrenceDetails').style.opacity = '0.5';
+            document.getElementById('recurrenceDetails').style.pointerEvents = 'none';
+        } else {
+            document.getElementById('taskRecurrence').disabled = false;
+            document.getElementById('recurrenceDetails').style.opacity = '';
+            document.getElementById('recurrenceDetails').style.pointerEvents = '';
+        }
 
         // Duration
         const stdDurations = [5, 10, 15, 30, 45, 60, 120, 180];
@@ -754,6 +808,11 @@ function openTaskForm(task = null) {
         pinnedInput.checked = false;
         deleteBtn.style.display = 'none';
 
+        setRecurrenceToForm(null);
+        document.getElementById('taskRecurrence').disabled = false;
+        document.getElementById('recurrenceDetails').style.opacity = '';
+        document.getElementById('recurrenceDetails').style.pointerEvents = '';
+
         importanceBtns.forEach((b) => {
             b.classList.toggle('active', b.dataset.value === 'mid');
         });
@@ -787,7 +846,7 @@ function closeTaskForm() {
 }
 
 async function saveTaskFromForm() {
-    const id = document.getElementById('taskId').value;
+    const idStr = document.getElementById('taskId').value;
     const name = document.getElementById('taskName').value.trim();
     if (!name) return;
 
@@ -798,49 +857,96 @@ async function saveTaskFromForm() {
     }
 
     const targetType = document.querySelector('input[name="targetType"]:checked').value;
-    const importance = document.querySelector('.importance-btn.active')?.dataset.value || 'mid';
+    // ... (rest of logic continues in next block or I need to implement here)
+    // I need to implement the rest of saveTaskFromForm here to handle recurrence exception
+
+    // Construct simplified task object (common fields)
+    const memo = document.getElementById('taskMemo').value;
+    const importance = document.querySelector('.importance-btn.active').dataset.value;
     const pinned = document.getElementById('taskPinned').checked;
 
-    let isSomeday = targetType === 'someday' || targetType === 'goal';
-    let scheduledDate = null;
-    let scheduledTime = null;
+    let isSomeday = false;
     let targetDateVal = null;
+    let scheduledDateVal = null;
+    let scheduledTimeVal = null;
 
-    if (targetType === 'goal') {
-        // 目標: いつかやるリストに追加、カレンダー非反映、目標日付あり
-        targetDateVal = document.getElementById('goalDate').value || null;
-    } else if (targetType === 'date') {
-        scheduledDate = document.getElementById('targetDate').value || null;
-        targetDateVal = scheduledDate;
+    if (targetType === 'someday') {
+        isSomeday = true;
+    } else if (targetType === 'goal') {
+        isSomeday = true;
+        targetDateVal = document.getElementById('goalDate').value;
+    } else {
+        isSomeday = false;
+        scheduledDateVal = document.getElementById('targetDate').value;
         const timeType = document.querySelector('input[name="timeType"]:checked').value;
         if (timeType === 'specified') {
-            scheduledTime = document.getElementById('targetTime').value || null;
+            scheduledTimeVal = document.getElementById('targetTime').value;
         }
     }
 
-    const now = new Date().toISOString();
-    const task = id
-        ? { ...(allTasks.find((t) => t.id === id) || createTask()), updatedAt: now }
-        : createTask({ createdAt: now, updatedAt: now });
+    const recurrence = getRecurrenceFromForm();
 
-    Object.assign(task, {
-        name,
-        memo: document.getElementById('taskMemo').value,
-        duration,
-        targetDate: targetDateVal,
-        targetTime: scheduledTime,
-        importance,
-        pinned,
-        isSomeday,
-        scheduledDate,
-        scheduledTime,
-    });
+    // Check Instance vs New/Original
+    if (idStr && idStr.includes('_')) {
+        // Editing Instance
+        const [originalId, dateStr] = idStr.split('_');
+        const originalTask = await getTaskFromDB(originalId);
+        if (originalTask) {
+            if (!originalTask.recurrence.exceptions) originalTask.recurrence.exceptions = {};
 
-    if (id) task.id = id;
+            // Create Override Object
+            const overrides = {
+                name, memo, duration, importance, pinned,
+                isSomeday, targetDate: targetDateVal,
+                scheduledDate: scheduledDateVal, scheduledTime: scheduledTimeVal,
+                updatedAt: new Date().toISOString()
+            };
+            // Note: Recurrence info is NOT saved in override (instance is single event)
 
-    await saveTask(task);
-    allTasks = await getAllTasks();
+            originalTask.recurrence.exceptions[dateStr] = overrides;
+            await saveTask(originalTask);
+        }
+    } else {
+        // Normal Save
+        let task;
+        if (idStr) {
+            task = await getTaskFromDB(idStr);
+            if (!task) task = createTask(); // Fallback
+        } else {
+            task = createTask();
+        }
+
+        task.name = name;
+        task.memo = memo;
+        task.duration = duration;
+        task.importance = importance;
+        task.pinned = pinned;
+        task.isSomeday = isSomeday;
+        task.targetDate = targetDateVal;
+        task.scheduledDate = scheduledDateVal;
+        task.scheduledTime = scheduledTimeVal;
+        task.recurrence = recurrence;
+        task.updatedAt = new Date().toISOString();
+
+        // If recurrence is set, force isSomeday = false (User requirement 4)
+        if (recurrence) {
+            task.isSomeday = false;
+            // Ensure scheduledDate is set (from Form)
+            // If form was in "Someday" mode, we might need to force it to "Date" mode?
+            // "When recurrence is set, automatically switch to Date mode".
+            // The FORM logic should handle this visually, but data-wise we enforce it.
+            if (!task.scheduledDate) {
+                // Default to today? or targetDate?
+                task.scheduledDate = toDateStr(new Date());
+            }
+        }
+
+        await saveTask(task);
+    }
+
+    await loadAllTasks();
 }
+
 
 function onTaskClick(task) {
     openTaskForm(task);
@@ -855,3 +961,126 @@ async function onSettingsClose() {
 
 // ===== Start =====
 init();
+
+// ===== Recurrence Logic =====
+
+function toggleRecurrenceOptions() {
+    const type = document.getElementById('taskRecurrence').value;
+    const details = document.getElementById('recurrenceDetails');
+    const daily = document.getElementById('recurrenceDaily');
+    const weekly = document.getElementById('recurrenceWeekly');
+    const monthly = document.getElementById('recurrenceMonthly');
+    const yearly = document.getElementById('recurrenceYearly');
+
+    details.style.display = type === 'none' ? 'none' : '';
+    daily.style.display = type === 'daily' ? '' : 'none';
+    weekly.style.display = type === 'weekly' ? '' : 'none';
+    monthly.style.display = type === 'monthly' ? '' : 'none';
+    yearly.style.display = type === 'yearly' ? '' : 'none';
+}
+
+function getRecurrenceFromForm() {
+    const type = document.getElementById('taskRecurrence').value;
+    if (type === 'none') return null;
+
+    const r = { type };
+
+    if (type === 'daily') {
+        const excludeCheckboxes = document.querySelectorAll('#dailyExcludeSelector input:checked');
+        if (excludeCheckboxes.length > 0) {
+            r.excludeDays = Array.from(excludeCheckboxes).map(c => parseInt(c.value, 10));
+        }
+    } else if (type === 'weekly') {
+        const includeCheckboxes = document.querySelectorAll('#weeklyIncludeSelector input:checked');
+        if (includeCheckboxes.length > 0) {
+            r.daysOfWeek = Array.from(includeCheckboxes).map(c => parseInt(c.value, 10));
+        }
+    } else if (type === 'monthly') {
+        r.dayOfMonth = parseInt(document.getElementById('recurrenceMonthDay').value, 10);
+        const avoidCheckboxes = document.querySelectorAll('#monthlyAvoidSelector input:checked');
+        if (avoidCheckboxes.length > 0) {
+            r.avoidDays = Array.from(avoidCheckboxes).map(c => parseInt(c.value, 10));
+            r.avoidDirection = document.getElementById('monthlyAvoidDir').value;
+        }
+    } else if (type === 'yearly') {
+        r.month = parseInt(document.getElementById('recurrenceYearMonth').value, 10);
+        r.dayOfMonth = parseInt(document.getElementById('recurrenceYearDay').value, 10);
+        const avoidCheckboxes = document.querySelectorAll('#yearlyAvoidSelector input:checked');
+        if (avoidCheckboxes.length > 0) {
+            r.avoidDays = Array.from(avoidCheckboxes).map(c => parseInt(c.value, 10));
+            r.avoidDirection = document.getElementById('yearlyAvoidDir').value;
+        }
+    }
+
+    return r;
+}
+
+function setRecurrenceToForm(recurrence) {
+    const select = document.getElementById('taskRecurrence');
+
+    // Reset all inputs
+    document.querySelectorAll('.day-selector input').forEach(c => c.checked = false);
+    document.getElementById('recurrenceMonthDay').value = 1;
+    document.getElementById('recurrenceYearMonth').value = 1;
+    document.getElementById('recurrenceYearDay').value = 1;
+    document.getElementById('monthlyAvoidDir').value = 'before';
+    document.getElementById('yearlyAvoidDir').value = 'before';
+
+    if (!recurrence || recurrence.type === 'none') {
+        select.value = 'none';
+        toggleRecurrenceOptions();
+        return;
+    }
+
+    select.value = recurrence.type;
+    toggleRecurrenceOptions();
+
+    const r = recurrence;
+    if (r.type === 'daily') {
+        if (r.excludeDays) {
+            r.excludeDays.forEach(d => {
+                const cb = document.querySelector(`#dailyExcludeSelector input[value="${d}"]`);
+                if (cb) cb.checked = true;
+            });
+        }
+    } else if (r.type === 'weekly') {
+        if (r.daysOfWeek) {
+            r.daysOfWeek.forEach(d => {
+                const cb = document.querySelector(`#weeklyIncludeSelector input[value="${d}"]`);
+                if (cb) cb.checked = true;
+            });
+        }
+    } else if (r.type === 'monthly') {
+        if (r.dayOfMonth) document.getElementById('recurrenceMonthDay').value = r.dayOfMonth;
+        if (r.avoidDays) {
+            r.avoidDays.forEach(d => {
+                const cb = document.querySelector(`#monthlyAvoidSelector input[value="${d}"]`);
+                if (cb) cb.checked = true;
+            });
+            if (r.avoidDirection) document.getElementById('monthlyAvoidDir').value = r.avoidDirection;
+        }
+    } else if (r.type === 'yearly') {
+        if (r.month) document.getElementById('recurrenceYearMonth').value = r.month;
+        if (r.dayOfMonth) document.getElementById('recurrenceYearDay').value = r.dayOfMonth;
+        if (r.avoidDays) {
+            r.avoidDays.forEach(d => {
+                const cb = document.querySelector(`#yearlyAvoidSelector input[value="${d}"]`);
+                if (cb) cb.checked = true;
+            });
+            if (r.avoidDirection) document.getElementById('yearlyAvoidDir').value = r.avoidDirection;
+        }
+    }
+}
+
+async function loadAllTasks() {
+    const raw = await getAllTasks();
+    // Expand recurrence for +/- 1 year from today (or wider)
+    // Takt is likely used for near future/past mostly.
+    const start = addDays(new Date(), -365);
+    const end = addDays(new Date(), 365);
+    // Format dates for expansion (YYYY-MM-DD)
+    const startStr = toDateStr(start);
+    const endStr = toDateStr(end);
+
+    allTasks = expandRecurringTasks(raw, startStr, endStr);
+}

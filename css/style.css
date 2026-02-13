@@ -1626,3 +1626,107 @@ input[type="time"].form-input {
   box-sizing: border-box;
   /* Important for absolute positioning */
 }
+
+/* ===== 繰り返し設定フォーム ===== */
+.recurrence-sub {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+}
+
+.form-label-sm {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.day-selector {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.day-selector label {
+  cursor: pointer;
+}
+
+.day-selector input {
+  display: none;
+}
+
+.day-selector span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+  background: var(--color-bg);
+}
+
+.day-selector input:checked+span {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.day-selector-sm {
+  display: flex;
+  gap: 8px;
+}
+
+.day-selector-sm span {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+
+.input-suffix-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-suffix-group input {
+  width: 60px;
+  text-align: center;
+}
+
+.input-suffix-group span {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.form-select-xs {
+  padding: 4px 24px 4px 8px;
+  font-size: 12px;
+  height: 28px;
+}
+
+.form-input-sm {
+  padding: 6px 8px;
+  font-size: 13px;
+  height: 32px;
+}
+
+.avoid-rule-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border);
+}
+
+
+.recurrence-icon {
+  display: inline-flex;
+  margin-left: 6px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  vertical-align: middle;
+}

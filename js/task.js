@@ -146,3 +146,198 @@ export function formatDuration(min) {
     const m = min % 60;
     return m > 0 ? `${h}時間${m}分` : `${h}時間`;
 }
+
+/**
+ * ----------------------------------------------------------------
+ * Recurrence Logic
+ * ----------------------------------------------------------------
+ */
+
+/** Check if a year is leap year */
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+/** Get last day of month */
+function getLastDayOfMonth(year, month) {
+    // month is 0-indexed in JS Date, but 1-indexed in common usage.
+    // Here we assume standard JS Date month (0-11).
+    // new Date(year, month + 1, 0) gives last day of month.
+    return new Date(year, month + 1, 0).getDate();
+}
+
+/** Apply avoid rules (shift date if matches avoidDays) */
+function applyAvoidRules(date, avoidDays, direction) {
+    if (!avoidDays || avoidDays.length === 0) return new Date(date);
+
+    let d = new Date(date);
+    // Safety break to prevent infinite loop
+    let loops = 0;
+    while (avoidDays.includes(d.getDay()) && loops < 30) {
+        if (direction === 'before') {
+            d.setDate(d.getDate() - 1);
+        } else {
+            d.setDate(d.getDate() + 1);
+        }
+        loops++;
+    }
+    return d;
+}
+
+/** Format YYYY-MM-DD */
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+/** Expand recurring tasks into instances */
+export function expandRecurringTasks(tasks, startStr, endStr) {
+    const startDate = new Date(startStr);
+    const endDate = new Date(endStr);
+    const result = [];
+
+    tasks.forEach(task => {
+        // Non-recurring or invalid
+        if (!task.recurrence || task.recurrence.type === 'none') {
+            // Filter by range logic if needed, but usually we handle this outside.
+            // But here we might want to return ALL relevant tasks?
+            // "Function to expand recurring tasks... into instances".
+            // Non-recurring tasks should be passed through IF they are in range?
+            // Actually, app.js usually filters by date.
+            // Let's assume we return Instances + Originals if they match?
+            // NO, `expandRecurringTasks` usually just returns the expanded list.
+            // The caller will then filter by date.
+            // But for Infinite Scroll, we need effective dates.
+            // Let's just pass through non-recurring tasks as is.
+            result.push(task);
+            return;
+        }
+
+        const r = task.recurrence;
+        const exceptions = r.exceptions || {};
+
+        // Loop range
+        // Optimization: Start from task.scheduledDate or startDate, whichever is later?
+        // But task might not have scheduledDate if it's a template.
+        // Assuming template has some "start" info? 
+        // User spec didn't specify "Start Date" for recurrence.
+        // Implied: Recurrence starts from... creation? or always?
+        // Let's assume always active in the window.
+
+        let current = new Date(startDate);
+        // Ensure we don't start before task created? 
+        // Maybe recurrence has startDate?
+        // For now, generate in the requested window.
+
+        // Strategy: Iterate based on type efficiently
+
+        if (r.type === 'daily') {
+            let d = new Date(startDate);
+            while (d <= endDate) {
+                const dayOfWeek = d.getDay();
+                if (!r.excludeDays || !r.excludeDays.includes(dayOfWeek)) {
+                    addInstance(task, d, exceptions, result);
+                }
+                d.setDate(d.getDate() + 1);
+            }
+        }
+        else if (r.type === 'weekly') {
+            let d = new Date(startDate);
+            while (d <= endDate) {
+                const dayOfWeek = d.getDay();
+                if (r.daysOfWeek && r.daysOfWeek.includes(dayOfWeek)) {
+                    addInstance(task, d, exceptions, result);
+                }
+                d.setDate(d.getDate() + 1);
+            }
+        }
+        else if (r.type === 'monthly') {
+            const targetDay = parseInt(r.dayOfMonth, 10);
+            let d = new Date(startDate);
+            // Start from 1st of start month to handle shift/avoid correctly
+            d.setDate(1);
+
+            while (d <= endDate) {
+                const year = d.getFullYear();
+                const month = d.getMonth();
+                const lastDay = getLastDayOfMonth(year, month);
+
+                // Determine actual date (e.g. 31st -> 30th if Feb)
+                let actualDay = Math.min(targetDay, lastDay);
+                let checkDate = new Date(year, month, actualDay);
+
+                // Apply avoid
+                let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
+
+                if (finalDate >= startDate && finalDate <= endDate) {
+                    addInstance(task, finalDate, exceptions, result);
+                }
+
+                // Next month
+                d.setMonth(d.getMonth() + 1);
+            }
+        }
+        else if (r.type === 'yearly') {
+            const targetMonth = parseInt(r.month, 10) - 1; // 0-11
+            const targetDay = parseInt(r.dayOfMonth, 10);
+
+            let y = startDate.getFullYear();
+            const endY = endDate.getFullYear();
+
+            for (let year = y; year <= endY; year++) {
+                // Determine date
+                // Handle Feb 29 on non-leap years? -> Feb 28
+                let actualDay = targetDay;
+                if (targetMonth === 1 && targetDay === 29 && !isLeapYear(year)) {
+                    actualDay = 28;
+                }
+
+                let checkDate = new Date(year, targetMonth, actualDay);
+
+                // Apply avoid
+                let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
+
+                if (finalDate >= startDate && finalDate <= endDate) {
+                    addInstance(task, finalDate, exceptions, result);
+                }
+            }
+        }
+    });
+
+    return result;
+}
+
+function addInstance(template, dateObj, exceptions, list) {
+    const dateStr = formatDate(dateObj);
+
+    // Check exceptions
+    if (exceptions[dateStr]) {
+        const ex = exceptions[dateStr];
+        if (ex === 'deleted') return; // Skip
+
+        // Instance modified
+        const instance = {
+            ...template,
+            id: template.id + '_' + dateStr, // Unique ID for finding
+            originalTaskId: template.id,
+            scheduledDate: dateStr,
+            isInstance: true,
+            recurrence: null, // Instance itself is not recurring
+            ...ex // Apply overrides
+        };
+        list.push(instance);
+    } else {
+        // Regular instance
+        const instance = {
+            ...template,
+            id: template.id + '_' + dateStr,
+            originalTaskId: template.id,
+            scheduledDate: dateStr,
+            isInstance: true,
+            recurrence: null
+        };
+        list.push(instance);
+    }
+}
