@@ -31,9 +31,15 @@ export function getHolidayName(dateStr) {
 
 export function formatDateHeader(date) {
     const m = date.getMonth() + 1;
+    return `${m}月`;
+}
+
+export function formatFullDate(date) {
+    const y = date.getFullYear();
+    const m = date.getMonth() + 1;
     const d = date.getDate();
     const dow = DAY_NAMES[date.getDay()];
-    return `${m}月${d}日 ${dow}曜日`;
+    return `${y}年${m}月${d}日 ${dow}曜日`;
 }
 
 export function toDateStr(date) {

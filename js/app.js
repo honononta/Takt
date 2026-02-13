@@ -8,7 +8,7 @@ import {
     formatDuration, minToTime, timeToMin
 } from './task.js';
 import {
-    loadHolidays, isHoliday, getHolidayName, formatDateHeader, toDateStr, fromDateStr,
+    loadHolidays, isHoliday, getHolidayName, formatDateHeader, formatFullDate, toDateStr, fromDateStr,
     addDays, getWeekDates, renderWeekCalendar
 } from './calendar.js';
 import { initSomeday, renderSomedayList } from './someday.js';
@@ -113,6 +113,8 @@ const unscheduledList = document.getElementById('unscheduledList');
 const timeline = document.getElementById('timeline');
 const holidayBanner = document.getElementById('holidayBanner');
 const holidayNameEl = document.getElementById('holidayName');
+const dateInfoMain = document.getElementById('dateInfoMain');
+const dateInfoSub = document.getElementById('dateInfoSub');
 
 // ===== Init =====
 async function init() {
@@ -203,16 +205,34 @@ function navigateWeek(offset) {
 function render(weekSlide = null) {
     const dateStr = toDateStr(currentDate);
 
-    // Header
+    // Header (Already M月)
     headerDate.textContent = formatDateHeader(currentDate);
 
-    // 祝日バナー
+    // Date Info Area (Under Calendar)
+    dateInfoMain.textContent = formatFullDate(currentDate);
+
+    // 祝日バナー (old one, keeping it for now or removing? User request implies new area replaces old banner?)
+    // The user said "その何年何月の下に来るように枠の追加？をしてもらいたい"
+    // "どちらの文字も中央揃えでやってほしい"
+    // Does the user want the OLD holiday banner removed? 
+    // "その何年何月の下に来るように" -> Under "YYYY年MM月DD日(W曜)"? 
+    // Yes: "何年何月何日何曜日と書いているが何月だけの文字にしてほしい" (Header date)
+    // "カレンダーとタスクのタイムラインの間にだけど何年何月何日何曜日の文字と今祝日が入っているものを..."
+    // So the new area should show BOTH date and holiday.
+    // I should probably hide the old holiday banner if it exists or reuse its logic for dateInfoSub.
+
     const hName = getHolidayName(dateStr);
     if (hName) {
-        holidayBanner.style.display = '';
-        holidayNameEl.textContent = hName;
+        // Show holiday in dateInfoSub
+        dateInfoSub.textContent = hName;
+        dateInfoSub.style.display = '';
+        dateInfoSub.style.color = 'var(--color-danger)'; // Red for holiday
+
+        // Hide old banner if present
+        if (holidayBanner) holidayBanner.style.display = 'none';
     } else {
-        holidayBanner.style.display = 'none';
+        dateInfoSub.style.display = 'none';
+        if (holidayBanner) holidayBanner.style.display = 'none';
     }
 
     // Week calendar (with animation detection)

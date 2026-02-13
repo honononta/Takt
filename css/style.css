@@ -945,6 +945,41 @@ input[type="time"].form-input {
   border-color: var(--color-accent);
 }
 
+/* 日付情報エリア（カレンダー下） */
+.date-info-area {
+  text-align: center;
+  padding: 8px 0 4px;
+  /* 上下パディング調整 */
+  background: var(--color-bg);
+}
+
+.date-info-main {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.5px;
+}
+
+.date-info-sub {
+  font-size: 13px;
+  color: var(--color-danger);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* 祝日バナー (Old - hidden via JS but keeping CSS just in case) */
+.holiday-banner {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--color-danger);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .form-row {
   display: flex;
   align-items: center;
