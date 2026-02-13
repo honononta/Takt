@@ -1445,6 +1445,23 @@ input[type="time"].form-input {
   bottom: 3px;
 }
 
+/* Week Calendar Slide Animations */
+.slide-out-left {
+  animation: slideOutLeft 0.3s forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.3s forwards;
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.3s forwards;
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.3s forwards;
+}
+
 /* Fade Transition (Simple Cross-Fade) */
 .view-fade-enter-active,
 .view-fade-exit-active {

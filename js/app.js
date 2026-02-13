@@ -218,9 +218,9 @@ async function init() {
 }
 
 // ===== Navigation =====
-function navigatePrev() {
+function navigatePrev(days = 1) {
     if (currentView === 'week') {
-        currentDate = addDays(currentDate, -1);
+        currentDate = addDays(currentDate, -days);
         render('right'); // Slide right (showing past)
     } else if (currentView === 'month') {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -233,9 +233,9 @@ function navigatePrev() {
     }
 }
 
-function navigateNext() {
+function navigateNext(days = 1) {
     if (currentView === 'week') {
-        currentDate = addDays(currentDate, 1);
+        currentDate = addDays(currentDate, days);
         render('left'); // Slide left (showing future)
     } else if (currentView === 'month') {
         currentDate.setMonth(currentDate.getMonth() + 1);
