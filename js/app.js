@@ -714,7 +714,16 @@ async function getTaskFromDB(id) {
     return tasks.find(t => t.id === id);
 }
 
-function openTaskForm(task = null) {
+// Deep compare recurrence objects
+function isSameRecurrence(r1, r2) {
+    if (!r1 && !r2) return true;
+    if (!r1 || !r2) return false;
+    // Simple JSON stringify comparison
+    // Key order should be consistent from getRecurrenceFromForm
+    return JSON.stringify(r1) === JSON.stringify(r2);
+}
+
+async function openTaskForm(task = null) {
     const title = document.getElementById('taskSheetTitle');
     const idInput = document.getElementById('taskId');
     const nameInput = document.getElementById('taskName');
@@ -734,6 +743,12 @@ function openTaskForm(task = null) {
     const pinnedRow = document.getElementById('taskPinnedRow');
     const recurrenceGroup = document.getElementById('taskRecurrenceGroup');
 
+    // Reset Recurrence UI State
+    if (recurrenceGroup) recurrenceGroup.style.display = '';
+    document.getElementById('taskRecurrence').disabled = false;
+    document.getElementById('recurrenceDetails').style.opacity = '';
+    document.getElementById('recurrenceDetails').style.pointerEvents = '';
+
     if (task) {
         title.textContent = task.isInstance ? 'タスク編集 (繰り返し)' : 'タスク編集';
         idInput.value = task.id;
@@ -742,20 +757,18 @@ function openTaskForm(task = null) {
         pinnedInput.checked = task.pinned;
         deleteBtn.style.display = '';
 
-        // Recurrence
-        // If instance, we don't allow editing recurrence pattern here (simplification)
-        // Or we could showing it but disabled.
-        // For now, load recurrence if exists (Template), or null (Instance)
-        setRecurrenceToForm(task.recurrence);
-        if (task.isInstance) {
-            document.getElementById('taskRecurrence').disabled = true;
-            document.getElementById('recurrenceDetails').style.opacity = '0.5';
-            document.getElementById('recurrenceDetails').style.pointerEvents = 'none';
-        } else {
-            document.getElementById('taskRecurrence').disabled = false;
-            document.getElementById('recurrenceDetails').style.opacity = '';
-            document.getElementById('recurrenceDetails').style.pointerEvents = '';
+        // Recurrence Handling
+        let recurrenceToSet = task.recurrence;
+
+        // If Instance, fetch Original to get Recurrence
+        if (task.isInstance && task.originalTaskId) {
+            const original = await getTaskFromDB(task.originalTaskId);
+            if (original) {
+                recurrenceToSet = original.recurrence;
+            }
         }
+
+        setRecurrenceToForm(recurrenceToSet);
 
         // Duration
         const stdDurations = [5, 10, 15, 30, 45, 60, 120, 180];
@@ -775,7 +788,7 @@ function openTaskForm(task = null) {
 
         // Target
         if (task.isSomeday && task.targetDate) {
-            // 目標タイプ（いつかやるリスト + 目標日付あり）
+            // 目標タイプ
             document.querySelector('input[name="targetType"][value="goal"]').checked = true;
             goalTargetGroup.style.display = '';
             dateTargetGroup.style.display = 'none';
@@ -816,9 +829,6 @@ function openTaskForm(task = null) {
         deleteBtn.style.display = 'none';
 
         setRecurrenceToForm(null);
-        document.getElementById('taskRecurrence').disabled = false;
-        document.getElementById('recurrenceDetails').style.opacity = '';
-        document.getElementById('recurrenceDetails').style.pointerEvents = '';
 
         importanceBtns.forEach((b) => {
             b.classList.toggle('active', b.dataset.value === 'mid');
@@ -841,7 +851,6 @@ function openTaskForm(task = null) {
     taskOverlay.classList.add('active');
     taskSheet.classList.add('active');
     lockScroll();
-    // アニメーション完了後にフォーカス（スクロールジャンプ防止）
     setTimeout(() => {
         nameInput.focus({ preventScroll: true });
     }, 350);
@@ -865,12 +874,8 @@ async function saveTaskFromForm() {
     }
 
     const targetType = document.querySelector('input[name="targetType"]:checked').value;
-    // ... (rest of logic continues in next block or I need to implement here)
-    // I need to implement the rest of saveTaskFromForm here to handle recurrence exception
-
-    // Construct simplified task object (common fields)
     const memo = document.getElementById('taskMemo').value;
-    const importance = document.querySelector('.importance-btn.active').dataset.value;
+    const importance = document.querySelector('.importance-btn.active')?.dataset.value || 'mid';
     const pinned = document.getElementById('taskPinned').checked;
 
     let isSomeday = false;
@@ -882,74 +887,103 @@ async function saveTaskFromForm() {
         isSomeday = true;
     } else if (targetType === 'goal') {
         isSomeday = true;
-        targetDateVal = document.getElementById('goalDate').value;
+        targetDateVal = document.getElementById('goalDate').value || null;
     } else {
         isSomeday = false;
-        scheduledDateVal = document.getElementById('targetDate').value;
+        scheduledDateVal = document.getElementById('targetDate').value || null;
+        targetDateVal = scheduledDateVal;
         const timeType = document.querySelector('input[name="timeType"]:checked').value;
         if (timeType === 'specified') {
-            scheduledTimeVal = document.getElementById('targetTime').value;
+            scheduledTimeVal = document.getElementById('targetTime').value || null;
         }
     }
 
-    const recurrence = getRecurrenceFromForm();
+    const now = new Date().toISOString();
+    const newRecurrence = getRecurrenceFromForm();
 
     // Check Instance vs New/Original
     if (idStr && idStr.includes('_')) {
-        // Editing Instance
+        // --- Instance Update Logic ---
         const [originalId, dateStr] = idStr.split('_');
         const originalTask = await getTaskFromDB(originalId);
+
         if (originalTask) {
-            if (!originalTask.recurrence.exceptions) originalTask.recurrence.exceptions = {};
+            // Check if Recurrence Changed
+            const recurrenceChanged = !isSameRecurrence(originalTask.recurrence, newRecurrence);
 
-            // Create Override Object
-            const overrides = {
-                name, memo, duration, importance, pinned,
-                isSomeday, targetDate: targetDateVal,
-                scheduledDate: scheduledDateVal, scheduledTime: scheduledTimeVal,
-                updatedAt: new Date().toISOString()
-            };
-            // Note: Recurrence info is NOT saved in override (instance is single event)
+            if (recurrenceChanged) {
+                // SERIES UPDATE: Update the Original Task
+                const updatedOriginal = {
+                    ...originalTask,
+                    name,
+                    memo,
+                    duration,
+                    importance,
+                    pinned: false,
+                    isSomeday: false,
+                    targetDate: targetDateVal,
+                    scheduledDate: targetDateVal || originalTask.scheduledDate, // Use new date as start if set
+                    scheduledTime: scheduledTimeVal,
+                    recurrence: newRecurrence,
+                    updatedAt: now
+                };
+                await saveTask(updatedOriginal);
+            } else {
+                // INSTANCE UPDATE (Exception)
+                if (!originalTask.recurrence.exceptions) originalTask.recurrence.exceptions = {};
 
-            originalTask.recurrence.exceptions[dateStr] = overrides;
-            await saveTask(originalTask);
+                const overrides = {
+                    name, memo, duration, importance, pinned,
+                    isSomeday, targetDate: targetDateVal,
+                    scheduledDate: scheduledDateVal, scheduledTime: scheduledTimeVal,
+                    updatedAt: now
+                };
+
+                // If scheduledDate changed, it moves to another day (Logic might need handling in expandRecurringTasks)
+                // Current expandRecurringTasks puts it at "dateStr".
+                // If we change "scheduledDate" in override, expandRecurringTasks should respect it?
+                // AddInstance does: `...ex // Apply overrides`.
+                // So `instance.scheduledDate` becomes new date.
+                // But it's keyed by `dateStr` (original date).
+                // So it will appear on New Date, but ID remains `OriginalID_OriginalDate`.
+                // This is fine.
+
+                originalTask.recurrence.exceptions[dateStr] = overrides;
+                await saveTask(originalTask);
+            }
         }
     } else {
-        // Normal Save
-        let task;
-        if (idStr) {
-            task = await getTaskFromDB(idStr);
-            if (!task) task = createTask(); // Fallback
-        } else {
-            task = createTask();
+        // --- Regular Task / New Task ---
+        const task = idStr ? await getTaskFromDB(idStr) : createTask();
+
+        // If idStr was valid but task not found (shouldn't happen), createTask() makes new ID.
+        if (idStr && !task) {
+            // fallback?
         }
 
-        task.name = name;
-        task.memo = memo;
-        task.duration = duration;
-        task.importance = importance;
-        task.pinned = pinned;
-        task.isSomeday = isSomeday;
-        task.targetDate = targetDateVal;
-        task.scheduledDate = scheduledDateVal;
-        task.scheduledTime = scheduledTimeVal;
-        task.recurrence = recurrence;
-        task.updatedAt = new Date().toISOString();
+        const updatedTask = {
+            ...task,
+            name,
+            memo,
+            duration,
+            importance,
+            pinned,
+            isSomeday,
+            targetDate: targetDateVal,
+            scheduledDate: isSomeday ? null : scheduledDateVal,
+            scheduledTime: scheduledTimeVal,
+            recurrence: newRecurrence,
+            updatedAt: now
+        };
 
-        // If recurrence is set, force isSomeday = false (User requirement 4)
-        if (recurrence) {
-            task.isSomeday = false;
-            // Ensure scheduledDate is set (from Form)
-            // If form was in "Someday" mode, we might need to force it to "Date" mode?
-            // "When recurrence is set, automatically switch to Date mode".
-            // The FORM logic should handle this visually, but data-wise we enforce it.
-            if (!task.scheduledDate) {
-                // Default to today? or targetDate?
-                task.scheduledDate = toDateStr(new Date());
+        if (newRecurrence) {
+            updatedTask.isSomeday = false;
+            if (!updatedTask.scheduledDate) {
+                updatedTask.scheduledDate = toDateStr(new Date());
             }
         }
 
-        await saveTask(task);
+        await saveTask(updatedTask);
     }
 
     await loadAllTasks();
