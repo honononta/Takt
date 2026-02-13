@@ -69,7 +69,11 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
 
         if (task.targetDate) {
             const dateEl = document.createElement('span');
-            dateEl.textContent = `〜${task.targetDate}`;
+            dateEl.className = 'goal-date';
+            const d = new Date(task.targetDate);
+            const mm = d.getMonth() + 1;
+            const dd = d.getDate();
+            dateEl.textContent = `目標 ${mm}/${dd}`;
             metaEl.appendChild(dateEl);
         }
 

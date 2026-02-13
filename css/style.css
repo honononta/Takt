@@ -681,9 +681,10 @@ body.sheet-open .header {
   transform: translateY(0);
 }
 
-/* 設定シートは位置を上げる（コンテンツが少ないため画面上部寄りに） */
+/* タスク登録・設定シートは高さを固定 */
+.task-sheet,
 .settings-sheet {
-  max-height: 60dvh;
+  min-height: 85dvh;
 }
 
 .sheet-handle {
@@ -782,6 +783,13 @@ body.sheet-open .header {
 
 .someday-card .pin-icon {
   font-size: 13px;
+}
+
+.someday-card .goal-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-accent);
+  opacity: 0.7;
 }
 
 /* いつかやる空状態 */

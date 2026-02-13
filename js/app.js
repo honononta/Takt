@@ -446,6 +446,7 @@ function setupTaskForm() {
     const deleteBtn = document.getElementById('taskDeleteBtn');
     const durationSelect = document.getElementById('taskDuration');
     const customDurationGroup = document.getElementById('customDurationGroup');
+    const goalTargetGroup = document.getElementById('goalTargetGroup');
     const dateTargetGroup = document.getElementById('dateTargetGroup');
     const timeGroup = document.getElementById('timeGroup');
     const importanceBtns = document.querySelectorAll('.importance-btn');
@@ -462,6 +463,7 @@ function setupTaskForm() {
     document.querySelectorAll('input[name="targetType"]').forEach((radio) => {
         radio.addEventListener('change', () => {
             const val = document.querySelector('input[name="targetType"]:checked').value;
+            goalTargetGroup.style.display = val === 'goal' ? '' : 'none';
             dateTargetGroup.style.display = val === 'date' ? '' : 'none';
         });
     });
@@ -511,10 +513,12 @@ function openTaskForm(task = null) {
     const customDuration = document.getElementById('customDuration');
     const customDurationGroup = document.getElementById('customDurationGroup');
     const targetDate = document.getElementById('targetDate');
+    const goalDate = document.getElementById('goalDate');
     const targetTime = document.getElementById('targetTime');
     const pinnedInput = document.getElementById('taskPinned');
     const deleteBtn = document.getElementById('taskDeleteBtn');
     const importanceBtns = document.querySelectorAll('.importance-btn');
+    const goalTargetGroup = document.getElementById('goalTargetGroup');
     const dateTargetGroup = document.getElementById('dateTargetGroup');
     const timeGroup = document.getElementById('timeGroup');
 
@@ -543,11 +547,19 @@ function openTaskForm(task = null) {
         });
 
         // Target
-        if (task.isSomeday) {
+        if (task.isSomeday && task.targetDate) {
+            // 目標タイプ（いつかやるリスト + 目標日付あり）
+            document.querySelector('input[name="targetType"][value="goal"]').checked = true;
+            goalTargetGroup.style.display = '';
+            dateTargetGroup.style.display = 'none';
+            goalDate.value = task.targetDate || '';
+        } else if (task.isSomeday) {
             document.querySelector('input[name="targetType"][value="someday"]').checked = true;
+            goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = 'none';
         } else {
             document.querySelector('input[name="targetType"][value="date"]').checked = true;
+            goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = '';
             targetDate.value = task.scheduledDate || task.targetDate || '';
 
@@ -575,12 +587,14 @@ function openTaskForm(task = null) {
         });
 
         document.querySelector('input[name="targetType"][value="someday"]').checked = true;
+        goalTargetGroup.style.display = 'none';
         dateTargetGroup.style.display = 'none';
         document.querySelector('input[name="timeType"][value="undecided"]').checked = true;
         timeGroup.style.display = 'none';
 
         // Default date to current view date
         targetDate.value = toDateStr(currentDate);
+        goalDate.value = toDateStr(currentDate);
         targetTime.value = '09:00';
     }
 
@@ -614,12 +628,15 @@ async function saveTaskFromForm() {
     const importance = document.querySelector('.importance-btn.active')?.dataset.value || 'mid';
     const pinned = document.getElementById('taskPinned').checked;
 
-    let isSomeday = targetType === 'someday';
+    let isSomeday = targetType === 'someday' || targetType === 'goal';
     let scheduledDate = null;
     let scheduledTime = null;
     let targetDateVal = null;
 
-    if (!isSomeday) {
+    if (targetType === 'goal') {
+        // 目標: いつかやるリストに追加、カレンダー非反映、目標日付あり
+        targetDateVal = document.getElementById('goalDate').value || null;
+    } else if (targetType === 'date') {
         scheduledDate = document.getElementById('targetDate').value || null;
         targetDateVal = scheduledDate;
         const timeType = document.querySelector('input[name="timeType"]:checked').value;
