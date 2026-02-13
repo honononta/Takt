@@ -44,6 +44,13 @@
   --radius-sheet: 16px;
 }
 
+/* グローバルbox-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* ダークモード */
 [data-theme="dark"] {
   --color-bg: #121212;
@@ -820,10 +827,11 @@ body.sheet-open .header {
   border-radius: 10px;
   background: var(--color-bg);
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s;
+  touch-action: manipulation;
 }
 
 .form-input:focus {

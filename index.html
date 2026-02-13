@@ -175,14 +175,14 @@
 
         <div id="goalTargetGroup" style="display:none;">
           <div class="form-group">
-            <label for="goalDate" class="form-label">目標日付</label>
+            <label for="goalDate" class="form-label">日付設定</label>
             <input type="date" id="goalDate" class="form-input">
           </div>
         </div>
 
         <div id="dateTargetGroup" style="display:none;">
           <div class="form-group">
-            <label for="targetDate" class="form-label">日付</label>
+            <label for="targetDate" class="form-label">日付設定</label>
             <input type="date" id="targetDate" class="form-input">
           </div>
           <div class="form-group">
@@ -242,6 +242,24 @@
       </button>
     </div>
     <div class="sheet-body">
+      <div class="settings-section pwa-info">
+        <h3 class="settings-section-title">📱 アプリとして使う</h3>
+        <div class="pwa-steps">
+          <p class="pwa-step"><strong>Safariでの設定方法</strong></p>
+          <p class="pwa-step">1. 画面下の共有ボタン <span class="pwa-icon">⬆</span> をタップ</p>
+          <p class="pwa-step">2.「ホーム画面に追加」を選択</p>
+        </div>
+        <div class="pwa-notice">
+          <svg class="pwa-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>本アプリはPWA（Webアプリ）です。データは端末に保存されますが、ストレージ容量の不足やブラウザのデータ削除によりデータが失われる場合があります。</p>
+        </div>
+      </div>
+
       <div class="settings-section">
         <h3 class="settings-section-title">外観</h3>
         <div class="settings-item">
