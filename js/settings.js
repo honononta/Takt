@@ -2,6 +2,7 @@
  * settings.js — Settings sheet logic (通知・祝日設定を削除)
  */
 import { getAllSettings, setSetting } from './db.js';
+import { refreshThemeColor } from './app.js';
 
 const overlay = document.getElementById('settingsOverlay');
 const sheet = document.getElementById('settingsSheet');
@@ -52,5 +53,6 @@ export function close() {
     overlay.classList.remove('active');
     sheet.classList.remove('active');
     document.body.classList.remove('sheet-open');
+    refreshThemeColor();
     if (_onClose) _onClose();
 }
