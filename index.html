@@ -278,7 +278,7 @@
               <div class="text-xs mb-2">※指定した日付で繰り返します</div>
               <div class="avoid-rule-group">
                 <label class="form-label-sm">回避する曜日</label>
-                <div class="day-selector-sm" id="monthlyAvoidSelector">
+                <div class="day-selector" id="monthlyAvoidSelector">
                   <label><input type="checkbox" value="0"><span>日</span></label>
                   <label><input type="checkbox" value="1"><span>月</span></label>
                   <label><input type="checkbox" value="2"><span>火</span></label>
@@ -287,9 +287,9 @@
                   <label><input type="checkbox" value="5"><span>金</span></label>
                   <label><input type="checkbox" value="6"><span>土</span></label>
                 </div>
-                <div class="form-row mt-2">
-                  <span class="text-xs">回避時の動作:</span>
-                  <select id="monthlyAvoidDir" class="form-select form-select-xs">
+                <div class="mt-3">
+                  <label class="form-label-sm">回避時の動作</label>
+                  <select id="monthlyAvoidDir" class="form-select form-select-sm mt-1">
                     <option value="before">前にずらす</option>
                     <option value="after">後にずらす</option>
                   </select>
@@ -302,7 +302,7 @@
               <div class="text-xs mb-2">※指定した日付で繰り返します</div>
               <div class="avoid-rule-group">
                 <label class="form-label-sm">回避する曜日</label>
-                <div class="day-selector-sm" id="yearlyAvoidSelector">
+                <div class="day-selector" id="yearlyAvoidSelector">
                   <label><input type="checkbox" value="0"><span>日</span></label>
                   <label><input type="checkbox" value="1"><span>月</span></label>
                   <label><input type="checkbox" value="2"><span>火</span></label>
@@ -311,13 +311,22 @@
                   <label><input type="checkbox" value="5"><span>金</span></label>
                   <label><input type="checkbox" value="6"><span>土</span></label>
                 </div>
-                <div class="form-row mt-2">
-                  <span class="text-xs">回避時の動作:</span>
-                  <select id="yearlyAvoidDir" class="form-select form-select-xs">
+                <div class="mt-3">
+                  <label class="form-label-sm">回避時の動作</label>
+                  <select id="yearlyAvoidDir" class="form-select form-select-sm mt-1">
                     <option value="before">前にずらす</option>
                     <option value="after">後にずらす</option>
                   </select>
                 </div>
+              </div>
+            </div>
+
+            <!-- 終了日設定 (共通) -->
+            <div class="recurrence-sub mt-2">
+              <label class="form-label-sm">終了指定</label>
+              <div class="form-row align-center">
+                <input type="date" id="recurrenceUntil" class="form-input form-input-sm">
+                <span class="text-xs ml-2 text-secondary">※指定しない場合は無期限</span>
               </div>
             </div>
           </div>

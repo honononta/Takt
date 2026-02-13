@@ -195,22 +195,12 @@ function formatDate(date) {
 /** Expand recurring tasks into instances */
 export function expandRecurringTasks(tasks, startStr, endStr) {
     const startDate = new Date(startStr);
-    const endDate = new Date(endStr);
+    let viewEndDate = new Date(endStr);
     const result = [];
 
     tasks.forEach(task => {
-        // Non-recurring or invalid
+        // Non-recurring
         if (!task.recurrence || task.recurrence.type === 'none') {
-            // Filter by range logic if needed, but usually we handle this outside.
-            // But here we might want to return ALL relevant tasks?
-            // "Function to expand recurring tasks... into instances".
-            // Non-recurring tasks should be passed through IF they are in range?
-            // Actually, app.js usually filters by date.
-            // Let's assume we return Instances + Originals if they match?
-            // NO, `expandRecurringTasks` usually just returns the expanded list.
-            // The caller will then filter by date.
-            // But for Infinite Scroll, we need effective dates.
-            // Let's just pass through non-recurring tasks as is.
             result.push(task);
             return;
         }
@@ -218,24 +208,22 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
         const r = task.recurrence;
         const exceptions = r.exceptions || {};
 
-        // Loop range
-        // Optimization: Start from task.scheduledDate or startDate, whichever is later?
-        // But task might not have scheduledDate if it's a template.
-        // Assuming template has some "start" info? 
-        // User spec didn't specify "Start Date" for recurrence.
-        // Implied: Recurrence starts from... creation? or always?
-        // Let's assume always active in the window.
+        // Effective end date (min of view end vs recurrence end)
+        let effectiveEndDate = new Date(viewEndDate);
+        if (r.until) {
+            const untilDate = new Date(r.until);
+            untilDate.setHours(23, 59, 59, 999);
+            if (untilDate < effectiveEndDate) {
+                effectiveEndDate = untilDate;
+            }
+        }
 
-        let current = new Date(startDate);
-        // Ensure we don't start before task created? 
-        // Maybe recurrence has startDate?
-        // For now, generate in the requested window.
-
-        // Strategy: Iterate based on type efficiently
+        // If recurrence ends before window starts, skip
+        if (effectiveEndDate < startDate) return;
 
         if (r.type === 'daily') {
             let d = new Date(startDate);
-            while (d <= endDate) {
+            while (d <= effectiveEndDate) {
                 const dayOfWeek = d.getDay();
                 if (!r.excludeDays || !r.excludeDays.includes(dayOfWeek)) {
                     addInstance(task, d, exceptions, result);
@@ -245,7 +233,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
         }
         else if (r.type === 'weekly') {
             let d = new Date(startDate);
-            while (d <= endDate) {
+            while (d <= effectiveEndDate) {
                 const dayOfWeek = d.getDay();
                 if (r.daysOfWeek && r.daysOfWeek.includes(dayOfWeek)) {
                     addInstance(task, d, exceptions, result);
@@ -259,7 +247,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
             // Start from 1st of start month to handle shift/avoid correctly
             d.setDate(1);
 
-            while (d <= endDate) {
+            while (d <= effectiveEndDate) {
                 const year = d.getFullYear();
                 const month = d.getMonth();
                 const lastDay = getLastDayOfMonth(year, month);
@@ -271,7 +259,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
                 // Apply avoid
                 let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
 
-                if (finalDate >= startDate && finalDate <= endDate) {
+                if (finalDate >= startDate && finalDate <= effectiveEndDate) {
                     addInstance(task, finalDate, exceptions, result);
                 }
 
@@ -284,7 +272,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
             const targetDay = parseInt(r.dayOfMonth, 10);
 
             let y = startDate.getFullYear();
-            const endY = endDate.getFullYear();
+            const endY = effectiveEndDate.getFullYear();
 
             for (let year = y; year <= endY; year++) {
                 // Determine date
@@ -299,7 +287,7 @@ export function expandRecurringTasks(tasks, startStr, endStr) {
                 // Apply avoid
                 let finalDate = applyAvoidRules(checkDate, r.avoidDays, r.avoidDirection);
 
-                if (finalDate >= startDate && finalDate <= endDate) {
+                if (finalDate >= startDate && finalDate <= effectiveEndDate) {
                     addInstance(task, finalDate, exceptions, result);
                 }
             }

@@ -993,6 +993,10 @@ function getRecurrenceFromForm() {
 
     const r = { type };
 
+    // Until date
+    const until = document.getElementById('recurrenceUntil').value;
+    if (until) r.until = until;
+
     if (type === 'daily') {
         const excludeCheckboxes = document.querySelectorAll('#dailyExcludeSelector input:checked');
         if (excludeCheckboxes.length > 0) {
@@ -1044,6 +1048,7 @@ function setRecurrenceToForm(recurrence) {
     // Note: removed explicit day/month inputs reset as they are removed from DOM
     document.getElementById('monthlyAvoidDir').value = 'before';
     document.getElementById('yearlyAvoidDir').value = 'before';
+    document.getElementById('recurrenceUntil').value = '';
 
     if (!recurrence || recurrence.type === 'none') {
         select.value = 'none';
@@ -1055,6 +1060,7 @@ function setRecurrenceToForm(recurrence) {
     toggleRecurrenceOptions();
 
     const r = recurrence;
+    if (r.until) document.getElementById('recurrenceUntil').value = r.until;
     if (r.type === 'daily') {
         if (r.excludeDays) {
             r.excludeDays.forEach(d => {
