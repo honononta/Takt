@@ -136,20 +136,33 @@ body.sheet-open .header {
 
 /* ===== ヘッダー ===== */
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  /* 左・中央・右 */
   align-items: center;
-  justify-content: space-between;
   padding: 8px 16px 10px;
   flex-shrink: 0;
   background: var(--color-bg);
 }
 
+.header-left {
+  justify-self: start;
+}
+
+.header-right {
+  justify-self: end;
+}
+
+
 .header-date {
-  font-size: 18px;
+  font-size: 24px;
+  /* 大きく */
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--color-text);
   flex-shrink: 0;
+  cursor: pointer;
+  /* クリック可能に */
 }
 
 .header-nav {
@@ -766,7 +779,7 @@ body.sheet-open .header {
   width: 16px;
   /* 少し大きく */
   height: 16px;
-  fill: var(--color-button-text);
+  fill: var(--color-text);
 }
 
 .sheet-body {
@@ -1056,6 +1069,110 @@ input[type="time"].form-input {
 
 .toggle input:checked+.toggle-slider::before {
   transform: translateX(20px);
+}
+
+/* ===== カレンダービュー切り替え ===== */
+.view-container {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.view-content {
+  width: 100%;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.view-hidden {
+  display: none !important;
+}
+
+/* 月カレンダー */
+.month-calendar {
+  padding: 10px 16px;
+}
+
+.month-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.month-cell {
+  width: 14.28%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.month-cell.today {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: bold;
+}
+
+.month-cell.other-month {
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+}
+
+/* 年カレンダー */
+.year-calendar {
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.year-cell {
+  aspect-ratio: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.year-cell.current-month {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+}
+
+/* アニメーション用クラス */
+.slide-out-left {
+  animation: slideOutLeft 0.25s forwards;
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.25s forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.25s forwards;
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.25s forwards;
+}
+
+.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fade-in {
+  opacity: 1;
 }
 
 /* ボタン */

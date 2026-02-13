@@ -22,7 +22,7 @@
     <div class="header-left">
       <h1 class="header-date" id="headerDate">Hello</h1>
     </div>
-    <div class="header-right">
+    <div class="header-center">
       <div class="header-nav">
         <button class="nav-btn" id="prevDayBtn" aria-label="前の日">
           <svg viewBox="0 0 24 24">
@@ -36,6 +36,8 @@
           </svg>
         </button>
       </div>
+    </div>
+    <div class="header-right">
       <button class="settings-btn" id="settingsBtn" aria-label="設定">
         <svg viewBox="0 0 512 512">
           <path
@@ -43,12 +45,20 @@
             fill="currentColor" />
         </svg>
       </button>
+    </div>
   </header>
 
-  <!-- ② 週カレンダー -->
+  <!-- ② カレンダーエリア (ビュー切り替え) -->
   <div class="calendar-strip" id="calendarStrip">
-    <div class="week-calendar" id="weekCalendar">
-      <!-- JS で動的に生成 -->
+    <div class="view-container" id="viewContainer">
+      <!-- 週ビュー (Default) -->
+      <div id="weekView" class="view-content week-calendar">
+        <!-- JS で動的に生成 -->
+      </div>
+      <!-- 月ビュー -->
+      <div id="monthView" class="view-content month-calendar view-hidden"></div>
+      <!-- 年ビュー -->
+      <div id="yearView" class="view-content year-calendar view-hidden"></div>
     </div>
   </div>
 

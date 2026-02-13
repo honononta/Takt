@@ -9,7 +9,7 @@ import {
 } from './task.js';
 import {
     loadHolidays, isHoliday, getHolidayName, formatDateHeader, formatFullDate, toDateStr, fromDateStr,
-    addDays, getWeekDates, renderWeekCalendar
+    addDays, getWeekDates, renderWeekCalendar, renderMonthCalendar, renderYearCalendar
 } from './calendar.js';
 import { initSomeday, renderSomedayList } from './someday.js';
 import { initSettings } from './settings.js';
@@ -17,6 +17,7 @@ import { initSwipe } from './swipe.js';
 
 // ===== State =====
 let currentDate = new Date();
+let currentView = 'week'; // 'week', 'month', 'year'
 let allTasks = [];
 let settings = {};
 let _prevWeekKey = null; // 前回描画した週の識別キー
@@ -106,7 +107,10 @@ export function unlockScroll() {
 
 // ===== DOM =====
 const headerDate = document.getElementById('headerDate');
-const weekCalendar = document.getElementById('weekCalendar');
+const viewContainer = document.getElementById('viewContainer');
+const weekView = document.getElementById('weekView');
+const monthView = document.getElementById('monthView');
+const yearView = document.getElementById('yearView');
 const taskArea = document.getElementById('taskArea');
 const unscheduledSection = document.getElementById('unscheduledSection');
 const unscheduledList = document.getElementById('unscheduledList');
@@ -147,28 +151,54 @@ async function init() {
 
     // Swipe navigation
     initSwipe(taskArea, {
-        onSwipeLeft: () => navigateDay(1),
-        onSwipeRight: () => navigateDay(-1),
+        onSwipeLeft: () => navigateNext(),
+        onSwipeRight: () => navigatePrev(),
     });
-    initSwipe(weekCalendar, {
-        onSwipeLeft: () => navigateWeek(7),
-        onSwipeRight: () => navigateWeek(-7),
+    initSwipe(viewContainer, {
+        onSwipeLeft: () => navigateNext(7), // 7 is ignored for month/year but used for week if logic allows
+        onSwipeRight: () => navigatePrev(7),
     });
 
     // Navigation buttons
-    document.getElementById('prevDayBtn').addEventListener('click', () => navigateDay(-1));
-    document.getElementById('nextDayBtn').addEventListener('click', () => navigateDay(1));
+    document.getElementById('prevDayBtn').addEventListener('click', () => navigatePrev());
+    document.getElementById('nextDayBtn').addEventListener('click', () => navigateNext());
     document.getElementById('todayBtn').addEventListener('click', () => {
         currentDate = new Date();
         render();
     });
 
-    // Week calendar click
-    weekCalendar.addEventListener('click', (e) => {
+    // Header Date Click (Switch View)
+    headerDate.addEventListener('click', () => {
+        if (currentView === 'week') {
+            switchView('month');
+        } else if (currentView === 'month') {
+            switchView('year');
+        }
+    });
+
+    // View Clicks
+    weekView.addEventListener('click', (e) => {
         const dayEl = e.target.closest('.week-day');
         if (dayEl && dayEl.dataset.date) {
             currentDate = fromDateStr(dayEl.dataset.date);
-            render();
+            render(); // Select day
+        }
+    });
+
+    monthView.addEventListener('click', (e) => {
+        const cell = e.target.closest('.month-cell');
+        if (cell && cell.dataset.date) {
+            currentDate = fromDateStr(cell.dataset.date);
+            switchView('week');
+        }
+    });
+
+    yearView.addEventListener('click', (e) => {
+        const cell = e.target.closest('.year-cell');
+        if (cell && cell.dataset.month !== undefined) {
+            const m = parseInt(cell.dataset.month, 10);
+            currentDate.setMonth(m);
+            switchView('month');
         }
     });
 
@@ -188,68 +218,100 @@ async function init() {
 }
 
 // ===== Navigation =====
-function navigateDay(offset) {
-    currentDate = addDays(currentDate, offset);
-    render();
+function navigatePrev() {
+    if (currentView === 'week') {
+        currentDate = addDays(currentDate, -1);
+        render('right'); // Slide right (showing past)
+    } else if (currentView === 'month') {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        currentDate = new Date(currentDate);
+        render('right');
+    } else if (currentView === 'year') {
+        currentDate.setFullYear(currentDate.getFullYear() - 1);
+        currentDate = new Date(currentDate);
+        render('right');
+    }
 }
 
-function navigateWeek(offset) {
-    currentDate = addDays(currentDate, offset);
-    render(offset > 0 ? 'left' : 'right');
+function navigateNext() {
+    if (currentView === 'week') {
+        currentDate = addDays(currentDate, 1);
+        render('left'); // Slide left (showing future)
+    } else if (currentView === 'month') {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        currentDate = new Date(currentDate);
+        render('left');
+    } else if (currentView === 'year') {
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        currentDate = new Date(currentDate);
+        render('left');
+    }
+}
+
+function switchView(view) {
+    currentView = view;
+    render();
 }
 
 // ===== Render =====
 /**
- * @param {'left'|'right'|null} weekSlide - 週カレンダーのスライド方向
+ * @param {'left'|'right'|null} slideDir
  */
-function render(weekSlide = null) {
+function render(slideDir = null) {
     const dateStr = toDateStr(currentDate);
 
-    // Header (Already M月)
-    headerDate.textContent = formatDateHeader(currentDate);
+    // Header & Views
+    if (currentView === 'week') {
+        headerDate.textContent = formatDateHeader(currentDate); // M月
 
-    // Date Info Area (Under Calendar)
+        weekView.classList.remove('view-hidden');
+        monthView.classList.add('view-hidden');
+        yearView.classList.add('view-hidden');
+
+        // Render Week
+        const weekDates = getWeekDates(currentDate, settings.weekStartDay);
+        const newWeekKey = toDateStr(weekDates[0]);
+        let dir = slideDir;
+
+        if (!dir && _prevWeekKey !== null && newWeekKey !== _prevWeekKey) {
+            dir = fromDateStr(newWeekKey) > fromDateStr(_prevWeekKey) ? 'left' : 'right';
+        }
+        _prevWeekKey = newWeekKey;
+        renderWeekCalendar(weekView, weekDates, currentDate, todayStr(), dir);
+
+    } else if (currentView === 'month') {
+        headerDate.textContent = `${currentDate.getFullYear()}年`;
+
+        weekView.classList.add('view-hidden');
+        monthView.classList.remove('view-hidden');
+        yearView.classList.add('view-hidden');
+
+        renderMonthCalendar(monthView, currentDate);
+
+    } else if (currentView === 'year') {
+        headerDate.textContent = `${currentDate.getFullYear()}年`;
+
+        weekView.classList.add('view-hidden');
+        monthView.classList.add('view-hidden');
+        yearView.classList.remove('view-hidden');
+
+        renderYearCalendar(yearView, currentDate);
+    }
+
+    // Date Info Area
     dateInfoMain.textContent = formatFullDate(currentDate);
 
-    // 祝日バナー (old one, keeping it for now or removing? User request implies new area replaces old banner?)
-    // The user said "その何年何月の下に来るように枠の追加？をしてもらいたい"
-    // "どちらの文字も中央揃えでやってほしい"
-    // Does the user want the OLD holiday banner removed? 
-    // "その何年何月の下に来るように" -> Under "YYYY年MM月DD日(W曜)"? 
-    // Yes: "何年何月何日何曜日と書いているが何月だけの文字にしてほしい" (Header date)
-    // "カレンダーとタスクのタイムラインの間にだけど何年何月何日何曜日の文字と今祝日が入っているものを..."
-    // So the new area should show BOTH date and holiday.
-    // I should probably hide the old holiday banner if it exists or reuse its logic for dateInfoSub.
-
+    // Holiday
     const hName = getHolidayName(dateStr);
     if (hName) {
-        // Show holiday in dateInfoSub
         dateInfoSub.textContent = hName;
         dateInfoSub.style.display = '';
-        dateInfoSub.style.color = 'var(--color-danger)'; // Red for holiday
-
-        // Hide old banner if present
+        dateInfoSub.style.color = 'var(--color-danger)';
         if (holidayBanner) holidayBanner.style.display = 'none';
     } else {
         dateInfoSub.style.display = 'none';
         if (holidayBanner) holidayBanner.style.display = 'none';
     }
-
-    // Week calendar (with animation detection)
-    const weekDates = getWeekDates(currentDate, settings.weekStartDay);
-    const newWeekKey = toDateStr(weekDates[0]); // 週の最初の日
-
-    // 週が変わったかどうかでスライド判定
-    let slideDir = null;
-    if (weekSlide) {
-        slideDir = weekSlide;
-    } else if (_prevWeekKey !== null && newWeekKey !== _prevWeekKey) {
-        // 日送りで週が変わった場合もアニメーション
-        slideDir = fromDateStr(newWeekKey) > fromDateStr(_prevWeekKey) ? 'left' : 'right';
-    }
-
-    _prevWeekKey = newWeekKey;
-    renderWeekCalendar(weekCalendar, weekDates, currentDate, todayStr(), slideDir);
 
     // Unscheduled tasks
     const unscheduled = getUnscheduledForDate(allTasks, dateStr);
