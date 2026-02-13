@@ -11,6 +11,7 @@ const ASSETS = [
   './js/calendar.js',
   './js/someday.js',
   './js/settings.js',
+  './js/scrollLock.js',
   './js/swipe.js',
   './data/holidays-jp.json',
   './manifest.json'
