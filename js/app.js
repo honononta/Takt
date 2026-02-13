@@ -636,6 +636,9 @@ function setupTaskForm() {
             dateTargetGroup.style.display = val === 'date' ? '' : 'none';
             // 日付指定の時はピン留めを非表示
             pinnedRow.style.display = val === 'date' ? 'none' : '';
+            // 繰り返し設定は日付指定時のみ表示
+            const recurrenceGroup = document.getElementById('taskRecurrenceGroup');
+            if (recurrenceGroup) recurrenceGroup.style.display = val === 'date' ? '' : 'none';
         });
     });
 
@@ -729,6 +732,7 @@ function openTaskForm(task = null) {
     const dateTargetGroup = document.getElementById('dateTargetGroup');
     const timeGroup = document.getElementById('timeGroup');
     const pinnedRow = document.getElementById('taskPinnedRow');
+    const recurrenceGroup = document.getElementById('taskRecurrenceGroup');
 
     if (task) {
         title.textContent = task.isInstance ? 'タスク編集 (繰り返し)' : 'タスク編集';
@@ -777,16 +781,19 @@ function openTaskForm(task = null) {
             dateTargetGroup.style.display = 'none';
             pinnedRow.style.display = '';
             goalDate.value = task.targetDate || '';
+            if (recurrenceGroup) recurrenceGroup.style.display = 'none';
         } else if (task.isSomeday) {
             document.querySelector('input[name="targetType"][value="someday"]').checked = true;
             goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = 'none';
             pinnedRow.style.display = '';
+            if (recurrenceGroup) recurrenceGroup.style.display = 'none';
         } else {
             document.querySelector('input[name="targetType"][value="date"]').checked = true;
             goalTargetGroup.style.display = 'none';
             dateTargetGroup.style.display = '';
             pinnedRow.style.display = 'none';
+            if (recurrenceGroup) recurrenceGroup.style.display = '';
             targetDate.value = task.scheduledDate || task.targetDate || '';
 
             if (task.scheduledTime) {
@@ -821,6 +828,7 @@ function openTaskForm(task = null) {
         goalTargetGroup.style.display = 'none';
         dateTargetGroup.style.display = 'none';
         pinnedRow.style.display = '';
+        if (recurrenceGroup) recurrenceGroup.style.display = 'none';
         document.querySelector('input[name="timeType"][value="undecided"]').checked = true;
         timeGroup.style.display = 'none';
 
@@ -996,15 +1004,27 @@ function getRecurrenceFromForm() {
             r.daysOfWeek = Array.from(includeCheckboxes).map(c => parseInt(c.value, 10));
         }
     } else if (type === 'monthly') {
-        r.dayOfMonth = parseInt(document.getElementById('recurrenceMonthDay').value, 10);
+        // Derive day from targetDate
+        const dateStr = document.getElementById('targetDate').value;
+        if (dateStr) {
+            const date = new Date(dateStr);
+            r.dayOfMonth = date.getDate();
+        }
+
         const avoidCheckboxes = document.querySelectorAll('#monthlyAvoidSelector input:checked');
         if (avoidCheckboxes.length > 0) {
             r.avoidDays = Array.from(avoidCheckboxes).map(c => parseInt(c.value, 10));
             r.avoidDirection = document.getElementById('monthlyAvoidDir').value;
         }
     } else if (type === 'yearly') {
-        r.month = parseInt(document.getElementById('recurrenceYearMonth').value, 10);
-        r.dayOfMonth = parseInt(document.getElementById('recurrenceYearDay').value, 10);
+        // Derive month/day from targetDate
+        const dateStr = document.getElementById('targetDate').value;
+        if (dateStr) {
+            const date = new Date(dateStr);
+            r.month = date.getMonth() + 1; // 1-12
+            r.dayOfMonth = date.getDate();
+        }
+
         const avoidCheckboxes = document.querySelectorAll('#yearlyAvoidSelector input:checked');
         if (avoidCheckboxes.length > 0) {
             r.avoidDays = Array.from(avoidCheckboxes).map(c => parseInt(c.value, 10));
@@ -1020,9 +1040,8 @@ function setRecurrenceToForm(recurrence) {
 
     // Reset all inputs
     document.querySelectorAll('.day-selector input').forEach(c => c.checked = false);
-    document.getElementById('recurrenceMonthDay').value = 1;
-    document.getElementById('recurrenceYearMonth').value = 1;
-    document.getElementById('recurrenceYearDay').value = 1;
+    document.querySelectorAll('.day-selector-sm input').forEach(c => c.checked = false);
+    // Note: removed explicit day/month inputs reset as they are removed from DOM
     document.getElementById('monthlyAvoidDir').value = 'before';
     document.getElementById('yearlyAvoidDir').value = 'before';
 
@@ -1051,7 +1070,7 @@ function setRecurrenceToForm(recurrence) {
             });
         }
     } else if (r.type === 'monthly') {
-        if (r.dayOfMonth) document.getElementById('recurrenceMonthDay').value = r.dayOfMonth;
+        // Day derived from date, no manual input needed
         if (r.avoidDays) {
             r.avoidDays.forEach(d => {
                 const cb = document.querySelector(`#monthlyAvoidSelector input[value="${d}"]`);
@@ -1060,8 +1079,7 @@ function setRecurrenceToForm(recurrence) {
             if (r.avoidDirection) document.getElementById('monthlyAvoidDir').value = r.avoidDirection;
         }
     } else if (r.type === 'yearly') {
-        if (r.month) document.getElementById('recurrenceYearMonth').value = r.month;
-        if (r.dayOfMonth) document.getElementById('recurrenceYearDay').value = r.dayOfMonth;
+        // Month/Day derived from date
         if (r.avoidDays) {
             r.avoidDays.forEach(d => {
                 const cb = document.querySelector(`#yearlyAvoidSelector input[value="${d}"]`);

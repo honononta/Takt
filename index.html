@@ -232,7 +232,7 @@
         </div>
 
 
-        <div class="form-group">
+        <div id="taskRecurrenceGroup" class="form-group">
           <label for="taskRecurrence" class="form-label">繰り返し</label>
           <select id="taskRecurrence" class="form-select">
             <option value="none" selected>しない</option>
@@ -241,119 +241,111 @@
             <option value="monthly">毎月</option>
             <option value="yearly">毎年</option>
           </select>
-        </div>
 
-        <!-- 繰り返し詳細設定 -->
-        <div id="recurrenceDetails" style="display:none;">
+          <!-- 繰り返し詳細設定 -->
+          <div id="recurrenceDetails" style="display:none; margin-top: 10px;">
 
-          <!-- 毎日: 除外する曜日 -->
-          <div id="recurrenceDaily" class="recurrence-sub" style="display:none;">
-            <label class="form-label-sm">除外する曜日</label>
-            <div class="day-selector" id="dailyExcludeSelector">
-              <!-- JSで生成 or HTML記述 -->
-              <label><input type="checkbox" value="0"><span>日</span></label>
-              <label><input type="checkbox" value="1"><span>月</span></label>
-              <label><input type="checkbox" value="2"><span>火</span></label>
-              <label><input type="checkbox" value="3"><span>水</span></label>
-              <label><input type="checkbox" value="4"><span>木</span></label>
-              <label><input type="checkbox" value="5"><span>金</span></label>
-              <label><input type="checkbox" value="6"><span>土</span></label>
-            </div>
-          </div>
-
-          <!-- 毎週: 実施する曜日 -->
-          <div id="recurrenceWeekly" class="recurrence-sub" style="display:none;">
-            <label class="form-label-sm">繰り返す曜日</label>
-            <div class="day-selector" id="weeklyIncludeSelector">
-              <label><input type="checkbox" value="0"><span>日</span></label>
-              <label><input type="checkbox" value="1"><span>月</span></label>
-              <label><input type="checkbox" value="2"><span>火</span></label>
-              <label><input type="checkbox" value="3"><span>水</span></label>
-              <label><input type="checkbox" value="4"><span>木</span></label>
-              <label><input type="checkbox" value="5"><span>金</span></label>
-              <label><input type="checkbox" value="6"><span>土</span></label>
-            </div>
-          </div>
-
-          <!-- 毎月: 日付指定 + 曜日回避 -->
-          <div id="recurrenceMonthly" class="recurrence-sub" style="display:none;">
-            <div class="form-row">
-              <label class="form-label-sm">毎月</label>
-              <div class="input-suffix-group">
-                <input type="number" id="recurrenceMonthDay" class="form-input form-input-sm" min="1" max="31"
-                  value="1">
-                <span>日</span>
-              </div>
-            </div>
-
-            <div class="avoid-rule-group">
-              <label class="form-label-sm">回避ルール</label>
-              <div class="day-selector-sm" id="monthlyAvoidSelector">
+            <!-- 毎日: 除外する曜日 -->
+            <div id="recurrenceDaily" class="recurrence-sub" style="display:none;">
+              <label class="form-label-sm">除外する曜日</label>
+              <div class="day-selector" id="dailyExcludeSelector">
                 <label><input type="checkbox" value="0"><span>日</span></label>
+                <label><input type="checkbox" value="1"><span>月</span></label>
+                <label><input type="checkbox" value="2"><span>火</span></label>
+                <label><input type="checkbox" value="3"><span>水</span></label>
+                <label><input type="checkbox" value="4"><span>木</span></label>
+                <label><input type="checkbox" value="5"><span>金</span></label>
                 <label><input type="checkbox" value="6"><span>土</span></label>
               </div>
-              <div class="form-row mt-2">
-                <span class="text-xs">回避時の動作:</span>
-                <select id="monthlyAvoidDir" class="form-select form-select-xs">
-                  <option value="before">前にずらす</option>
-                  <option value="after">後にずらす</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- 毎年: 月日指定 + 曜日回避 -->
-          <div id="recurrenceYearly" class="recurrence-sub" style="display:none;">
-            <div class="form-row">
-              <label class="form-label-sm">毎年</label>
-              <div class="input-suffix-group">
-                <input type="number" id="recurrenceYearMonth" class="form-input form-input-sm" min="1" max="12"
-                  value="1">
-                <span>月</span>
-              </div>
-              <div class="input-suffix-group">
-                <input type="number" id="recurrenceYearDay" class="form-input form-input-sm" min="1" max="31" value="1">
-                <span>日</span>
-              </div>
             </div>
 
-            <div class="avoid-rule-group">
-              <label class="form-label-sm">回避ルール</label>
-              <div class="day-selector-sm" id="yearlyAvoidSelector">
+            <!-- 毎週: 実施する曜日 -->
+            <div id="recurrenceWeekly" class="recurrence-sub" style="display:none;">
+              <label class="form-label-sm">繰り返す曜日</label>
+              <div class="day-selector" id="weeklyIncludeSelector">
                 <label><input type="checkbox" value="0"><span>日</span></label>
+                <label><input type="checkbox" value="1"><span>月</span></label>
+                <label><input type="checkbox" value="2"><span>火</span></label>
+                <label><input type="checkbox" value="3"><span>水</span></label>
+                <label><input type="checkbox" value="4"><span>木</span></label>
+                <label><input type="checkbox" value="5"><span>金</span></label>
                 <label><input type="checkbox" value="6"><span>土</span></label>
               </div>
-              <div class="form-row mt-2">
-                <span class="text-xs">回避時の動作:</span>
-                <select id="yearlyAvoidDir" class="form-select form-select-xs">
-                  <option value="before">前にずらす</option>
-                  <option value="after">後にずらす</option>
-                </select>
+            </div>
+
+            <!-- 毎月: 日付は指定日から自動取得 -->
+            <div id="recurrenceMonthly" class="recurrence-sub" style="display:none;">
+              <div class="text-xs mb-2">※指定した日付で繰り返します</div>
+              <div class="avoid-rule-group">
+                <label class="form-label-sm">回避する曜日</label>
+                <div class="day-selector-sm" id="monthlyAvoidSelector">
+                  <label><input type="checkbox" value="0"><span>日</span></label>
+                  <label><input type="checkbox" value="1"><span>月</span></label>
+                  <label><input type="checkbox" value="2"><span>火</span></label>
+                  <label><input type="checkbox" value="3"><span>水</span></label>
+                  <label><input type="checkbox" value="4"><span>木</span></label>
+                  <label><input type="checkbox" value="5"><span>金</span></label>
+                  <label><input type="checkbox" value="6"><span>土</span></label>
+                </div>
+                <div class="form-row mt-2">
+                  <span class="text-xs">回避時の動作:</span>
+                  <select id="monthlyAvoidDir" class="form-select form-select-xs">
+                    <option value="before">前にずらす</option>
+                    <option value="after">後にずらす</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 毎年: 日付は指定日から自動取得 -->
+            <div id="recurrenceYearly" class="recurrence-sub" style="display:none;">
+              <div class="text-xs mb-2">※指定した日付で繰り返します</div>
+              <div class="avoid-rule-group">
+                <label class="form-label-sm">回避する曜日</label>
+                <div class="day-selector-sm" id="yearlyAvoidSelector">
+                  <label><input type="checkbox" value="0"><span>日</span></label>
+                  <label><input type="checkbox" value="1"><span>月</span></label>
+                  <label><input type="checkbox" value="2"><span>火</span></label>
+                  <label><input type="checkbox" value="3"><span>水</span></label>
+                  <label><input type="checkbox" value="4"><span>木</span></label>
+                  <label><input type="checkbox" value="5"><span>金</span></label>
+                  <label><input type="checkbox" value="6"><span>土</span></label>
+                </div>
+                <div class="form-row mt-2">
+                  <span class="text-xs">回避時の動作:</span>
+                  <select id="yearlyAvoidDir" class="form-select form-select-xs">
+                    <option value="before">前にずらす</option>
+                    <option value="after">後にずらす</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="importance-selector">
-          <button type="button" class="importance-btn" data-value="low">低</button>
-          <button type="button" class="importance-btn active" data-value="mid">中</button>
-          <button type="button" class="importance-btn" data-value="high">高</button>
-        </div>
-    </div>
 
-    <div class="form-group form-row" id="taskPinnedRow">
-      <label class="form-label">ピン止め</label>
-      <label class="toggle">
-        <input type="checkbox" id="taskPinned">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+        <div class="form-group">
+          <label for="taskImportance" class="form-label">重要度</label>
+          <div class="importance-selector">
+            <button type="button" class="importance-btn" data-value="low">低</button>
+            <button type="button" class="importance-btn active" data-value="mid">中</button>
+            <button type="button" class="importance-btn" data-value="high">高</button>
+          </div>
 
-    <div class="form-actions">
-      <button type="button" class="btn btn-delete" id="taskDeleteBtn" style="display:none;">削除</button>
-      <!-- 保存ボタンはヘッダーに移動 -->
+
+          <div class="form-group form-row" id="taskPinnedRow">
+            <label class="form-label">ピン止め</label>
+            <label class="toggle">
+              <input type="checkbox" id="taskPinned">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-delete" id="taskDeleteBtn" style="display:none;">削除</button>
+            <!-- 保存ボタンはヘッダーに移動 -->
+          </div>
+      </form>
     </div>
-    </form>
-  </div>
   </div>
 
   <!-- 設定モーダル -->
