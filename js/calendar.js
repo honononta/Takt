@@ -197,7 +197,10 @@ export function renderMonthCalendar(container, yearMonth) {
 
         const cell = document.createElement('div');
         cell.className = 'month-cell';
-        cell.textContent = d.getDate();
+        const numSpan = document.createElement('span');
+        numSpan.className = 'month-day-num';
+        numSpan.textContent = d.getDate();
+        cell.appendChild(numSpan);
         cell.dataset.date = ds;
 
         if (!isCurrentMonth) cell.classList.add('other-month');
@@ -227,13 +230,42 @@ export function renderYearCalendar(container, date) {
     for (let m = 0; m < 12; m++) {
         const cell = document.createElement('div');
         cell.className = 'year-cell';
-        cell.textContent = `${m + 1}月`;
+
+        const title = document.createElement('div');
+        title.className = 'year-month-title';
+        title.textContent = `${m + 1}月`;
+        cell.appendChild(title);
+
+        const miniRaw = document.createElement('div');
+        miniRaw.className = 'mini-month-grid';
+        renderMiniMonth(miniRaw, y, m);
+        cell.appendChild(miniRaw);
+
         cell.dataset.month = m;
 
         if (y === thisYear && m === thisMonth) {
             cell.classList.add('current-month');
         }
 
+        container.appendChild(cell);
+    }
+}
+
+function renderMiniMonth(container, year, month) {
+    const firstDay = new Date(year, month, 1);
+    const startDow = firstDay.getDay();
+    const displayStart = addDays(firstDay, -startDow);
+
+    // 6 weeks * 7 days = 42
+    for (let i = 0; i < 42; i++) {
+        const d = addDays(displayStart, i);
+        const isCurrent = d.getMonth() === month;
+
+        const cell = document.createElement('div');
+        cell.className = 'mini-day';
+        if (!isCurrent) cell.classList.add('other-month');
+
+        cell.textContent = d.getDate();
         container.appendChild(cell);
     }
 }

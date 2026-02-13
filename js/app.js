@@ -249,8 +249,63 @@ function navigateNext() {
 }
 
 function switchView(view) {
+    if (currentView === view) return;
+    if (viewContainer.classList.contains('animating')) return;
+
+    const order = { week: 0, month: 1, year: 2 };
+    const oldView = currentView;
+    const diff = order[view] - order[oldView];
+    const dir = diff > 0 ? 'out' : 'in';
+
+    const oldEl = document.getElementById(oldView + 'View');
+    const newEl = document.getElementById(view + 'View');
+
+    // Start Animation Prep
+    viewContainer.classList.add('animating');
+    const startHeight = viewContainer.offsetHeight;
+    viewContainer.style.height = startHeight + 'px';
+
+    // Switch Logic (Updates DOM content and default visibility)
     currentView = view;
     render();
+
+    // Restore oldEl visibility for animation (render hidden it)
+    oldEl.classList.remove('view-hidden');
+
+    // Measure new height (newEl is visible due to render)
+    const newHeight = newEl.offsetHeight;
+
+    // Execute Animation
+    requestAnimationFrame(() => {
+        viewContainer.style.transition = 'height 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        viewContainer.style.height = newHeight + 'px';
+
+        const exit = dir === 'out' ? 'zoom-out-exit' : 'zoom-in-exit';
+        const exitActive = dir === 'out' ? 'zoom-out-exit-active' : 'zoom-in-exit-active';
+        const enter = dir === 'out' ? 'zoom-out-enter' : 'zoom-in-enter';
+        const enterActive = dir === 'out' ? 'zoom-out-enter-active' : 'zoom-in-enter-active';
+
+        oldEl.classList.add(exit);
+        newEl.classList.add(enter);
+
+        // Trigger reflow
+        void oldEl.offsetWidth;
+
+        oldEl.classList.add(exitActive);
+        newEl.classList.add(enterActive);
+
+        // Cleanup
+        setTimeout(() => {
+            viewContainer.classList.remove('animating');
+            viewContainer.style.height = '';
+            viewContainer.style.transition = '';
+
+            oldEl.classList.remove(exit, exitActive);
+            oldEl.classList.add('view-hidden');
+
+            newEl.classList.remove(enter, enterActive);
+        }, 300);
+    });
 }
 
 // ===== Render =====
@@ -280,7 +335,7 @@ function render(slideDir = null) {
         renderWeekCalendar(weekView, weekDates, currentDate, todayStr(), dir);
 
     } else if (currentView === 'month') {
-        headerDate.textContent = `${currentDate.getFullYear()}年`;
+        headerDate.textContent = `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`;
 
         weekView.classList.add('view-hidden');
         monthView.classList.remove('view-hidden');
@@ -298,38 +353,49 @@ function render(slideDir = null) {
         renderYearCalendar(yearView, currentDate);
     }
 
-    // Date Info Area
-    dateInfoMain.textContent = formatFullDate(currentDate);
+    // Visibility Control
+    const isWeek = currentView === 'week';
+    const dateInfoArea = document.querySelector('.date-info-area');
+    if (dateInfoArea) dateInfoArea.style.display = isWeek ? '' : 'none';
+    timeline.style.display = isWeek ? '' : 'none';
+    unscheduledSection.style.display = isWeek ? '' : 'none';
+    const somedaySection = document.getElementById('somedaySection') || document.querySelector('.someday-section');
+    if (somedaySection) somedaySection.style.display = isWeek ? '' : 'none';
 
-    // Holiday
-    const hName = getHolidayName(dateStr);
-    if (hName) {
-        dateInfoSub.textContent = hName;
-        dateInfoSub.style.display = '';
-        dateInfoSub.style.color = 'var(--color-danger)';
-        if (holidayBanner) holidayBanner.style.display = 'none';
-    } else {
-        dateInfoSub.style.display = 'none';
-        if (holidayBanner) holidayBanner.style.display = 'none';
+    if (isWeek) {
+        // Date Info Area
+        dateInfoMain.textContent = formatFullDate(currentDate);
+
+        // Holiday
+        const hName = getHolidayName(dateStr);
+        if (hName) {
+            dateInfoSub.textContent = hName;
+            dateInfoSub.style.display = '';
+            dateInfoSub.style.color = 'var(--color-danger)';
+            if (holidayBanner) holidayBanner.style.display = 'none';
+        } else {
+            dateInfoSub.style.display = 'none';
+            if (holidayBanner) holidayBanner.style.display = 'none';
+        }
+
+        // Unscheduled tasks
+        const unscheduled = getUnscheduledForDate(allTasks, dateStr);
+        if (unscheduled.length > 0) {
+            unscheduledSection.style.display = '';
+            renderUnscheduled(unscheduled);
+        } else {
+            unscheduledSection.style.display = 'none';
+        }
+
+        // Timeline
+        const scheduled = getScheduledForDate(allTasks, dateStr);
+        const bookingIds = detectBookings(scheduled);
+        const entries = buildTimeline(scheduled);
+        renderTimeline(entries, bookingIds);
+
+        // Someday list
+        renderSomedayList(allTasks, settings.scoreThresholdN1, settings.scoreThresholdN2);
     }
-
-    // Unscheduled tasks
-    const unscheduled = getUnscheduledForDate(allTasks, dateStr);
-    if (unscheduled.length > 0) {
-        unscheduledSection.style.display = '';
-        renderUnscheduled(unscheduled);
-    } else {
-        unscheduledSection.style.display = 'none';
-    }
-
-    // Timeline
-    const scheduled = getScheduledForDate(allTasks, dateStr);
-    const bookingIds = detectBookings(scheduled);
-    const entries = buildTimeline(scheduled);
-    renderTimeline(entries, bookingIds);
-
-    // Someday list
-    renderSomedayList(allTasks, settings.scoreThresholdN1, settings.scoreThresholdN2);
 }
 
 function renderUnscheduled(tasks) {

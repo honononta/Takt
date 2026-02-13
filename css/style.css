@@ -1107,14 +1107,26 @@ input[type="time"].form-input {
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  border-radius: 50%;
   cursor: pointer;
 }
 
+.month-day-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
 .month-cell.today {
+  /* background removed from cell */
+  font-weight: bold;
+}
+
+.month-cell.today .month-day-num {
   background: var(--color-accent);
   color: var(--color-accent-text);
-  font-weight: bold;
 }
 
 .month-cell.other-month {
@@ -1330,4 +1342,116 @@ input[type="time"].form-input {
   color: var(--color-text-secondary);
   margin-bottom: 8px;
   line-height: 1.5;
+}
+
+/* Year View Mini Calendar */
+.year-cell {
+  flex-direction: column;
+  justify-content: start;
+  padding: 4px;
+}
+
+.year-month-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: var(--color-text);
+}
+
+.mini-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+  gap: 1px;
+}
+
+.mini-day {
+  font-size: 8px;
+  text-align: center;
+  color: var(--color-text);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.mini-day.other-month {
+  color: var(--color-text-secondary);
+  opacity: 0.3;
+}
+
+/* Zoom Transition */
+.zoom-enter-active,
+.zoom-exit-active {
+  transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  backface-visibility: hidden;
+}
+
+/* Zoom Out (Week -> Month -> Year) */
+/* Exit currently visible view: scale down */
+.zoom-out-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.zoom-out-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Enter new view: scale up from larger? No, Zoom Out means new view is "above" or "larger context". */
+/* Usually "Zoom Out": Current view shrinks away, New view comes from "surrounding". */
+/* Or: Current view (Week) is detailed. New view (Month) is context. */
+/* Week shrinks to a cell? Hard. */
+/* Standard Zoom Out: Current scales DOWN. New view scales UP from smaller? No. */
+/* Let's try: */
+/* Exit (Week): Scale Down (0.9), Fade Out. */
+/* Enter (Month): Scale Up from 1.1 to 1? Or Scale Down from 1.1 to 1? */
+/* Try: Enter starts at scale 1.1, opacity 0 -> scale 1, opacity 1. */
+.zoom-out-enter {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+.zoom-out-enter-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Zoom In (Year -> Month -> Week) */
+/* Exit (Year): Scale Up (1.1), Fade Out. */
+.zoom-in-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.zoom-in-exit-active {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+/* Enter (Month): Scale Up from 0.9 to 1. */
+.zoom-in-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.zoom-in-enter-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.view-container.animating {
+  overflow: hidden;
+  /* Ensure content doesn't spill during transition */
+}
+
+.view-container.animating .view-content {
+  position: absolute;
+  /* Place on top of each other */
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* height is managed via JS on container */
 }

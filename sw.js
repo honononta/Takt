@@ -1,4 +1,4 @@
-const CACHE_NAME = 'takt-v3';
+const CACHE_NAME = 'takt-v4';
 
 // GitHub Pages対応: 相対パス使用
 const ASSETS = [
