@@ -21,20 +21,82 @@ let allTasks = [];
 let settings = {};
 let _prevWeekKey = null; // 前回描画した週の識別キー
 let _savedScrollTop = 0; // シート開閉時のスクロール位置保存
+let _sheetActive = false; // シートが表示中かどうか
 
 const todayStr = () => toDateStr(new Date());
 
 // ===== Scroll Lock (iOS Safari 裏スクロール防止) =====
+
+// touchmove ハンドラ: シート表示中にシート外のスクロールを防止
+function _handleTouchMove(e) {
+    if (!_sheetActive) return;
+    // シート内(.sheet-body)のスクロールは許可
+    const sheetBody = e.target.closest('.sheet-body');
+    if (sheetBody) {
+        // シート内コンテンツがスクロール可能かチェック
+        const isScrollable = sheetBody.scrollHeight > sheetBody.clientHeight;
+        if (isScrollable) return; // スクロール可能ならタッチ操作を許可
+    }
+    e.preventDefault();
+}
+
+// visualViewport resize ハンドラ: キーボード表示/非表示に対応
+function _handleViewportResize() {
+    if (!_sheetActive) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    // キーボードが表示された場合、シートの高さを可視領域に合わせる
+    const activeSheets = document.querySelectorAll('.bottom-sheet.active');
+    activeSheets.forEach((sheet) => {
+        sheet.style.maxHeight = `${vv.height * 0.85}px`;
+        // キーボードによるオフセットを補正
+        sheet.style.bottom = `${vv.offsetTop >= 0 ? window.innerHeight - vv.height - vv.offsetTop : 0}px`;
+    });
+
+    // 裏のスクロールを強制リセット
+    window.scrollTo(0, 0);
+}
+
 export function lockScroll() {
     _savedScrollTop = taskArea ? taskArea.scrollTop : 0;
+    _sheetActive = true;
     document.body.style.top = '0px';
     document.body.classList.add('sheet-open');
+
+    // touchmove 防止（passive: false が必須）
+    document.addEventListener('touchmove', _handleTouchMove, { passive: false });
+
+    // visualViewport 監視開始
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', _handleViewportResize);
+        window.visualViewport.addEventListener('scroll', () => {
+            if (_sheetActive) window.scrollTo(0, 0);
+        });
+    }
 }
 
 export function unlockScroll() {
+    _sheetActive = false;
     document.body.classList.remove('sheet-open');
     document.body.style.top = '';
     if (taskArea) taskArea.scrollTop = _savedScrollTop;
+
+    // touchmove 防止解除
+    document.removeEventListener('touchmove', _handleTouchMove);
+
+    // visualViewport 監視解除 & シートのスタイルをリセット
+    if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', _handleViewportResize);
+    }
+    const allSheets = document.querySelectorAll('.bottom-sheet');
+    allSheets.forEach((sheet) => {
+        sheet.style.maxHeight = '';
+        sheet.style.bottom = '';
+    });
+
+    // 最終的なスクロール位置リセット
+    window.scrollTo(0, 0);
 }
 
 // ===== DOM =====
