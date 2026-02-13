@@ -313,8 +313,8 @@ function render(slideDir = null) {
     // Prepare scheduled dates for dots
     const scheduledDates = new Set();
     allTasks.forEach(t => {
-        if (t.date && t.date !== 'someday') {
-            scheduledDates.add(t.date);
+        if (t.scheduledDate && !t.isSomeday) {
+            scheduledDates.add(t.scheduledDate);
         }
     });
 
