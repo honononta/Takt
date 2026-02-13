@@ -53,14 +53,6 @@ export function initSettings(onClose) {
 }
 
 export async function open() {
-    // Close Task Sheet if open
-    const taskSheet = document.getElementById('taskSheet');
-    const taskOverlay = document.getElementById('taskOverlay');
-    if (taskSheet && taskSheet.classList.contains('active')) {
-        taskSheet.classList.remove('active');
-        if (taskOverlay) taskOverlay.classList.remove('active');
-    }
-
     const overlay = document.getElementById('settingsOverlay');
     const sheet = document.getElementById('settingsSheet');
 
