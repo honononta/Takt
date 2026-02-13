@@ -155,66 +155,93 @@ export function renderWeekCalendar(container, weekDates, selectedDate, todayStr,
  * Render month calendar (for Month View)
  * @param {HTMLElement} container
  * @param {Date} yearMonth - Date object representing the month
+ * @param {Set} scheduledDates
+ * @param {'left'|'right'|null} slideDirection - Animation direction
  */
-export function renderMonthCalendar(container, yearMonth, scheduledDates = new Set()) {
-    container.innerHTML = '';
+export function renderMonthCalendar(container, yearMonth, scheduledDates = new Set(), slideDirection = null) {
+    const buildInner = () => {
+        const inner = document.createElement('div');
+        inner.className = 'month-calendar-inner';
 
-    // Header row (Sun Mon Tue...)
-    const headerRow = document.createElement('div');
-    headerRow.className = 'month-row header';
-    DAY_NAMES.forEach(d => {
-        const cell = document.createElement('div');
-        cell.className = 'month-cell header-cell';
-        cell.textContent = d;
-        cell.style.fontSize = '12px';
-        cell.style.color = 'var(--color-text-secondary)';
-        cell.style.fontWeight = 'bold';
-        headerRow.appendChild(cell);
-    });
-    container.appendChild(headerRow);
+        // Header row (Sun Mon Tue...)
+        const headerRow = document.createElement('div');
+        headerRow.className = 'month-row header';
+        DAY_NAMES.forEach(d => {
+            const cell = document.createElement('div');
+            cell.className = 'month-cell header-cell';
+            cell.textContent = d;
+            cell.style.fontSize = '12px';
+            cell.style.color = 'var(--color-text-secondary)';
+            cell.style.fontWeight = 'bold';
+            headerRow.appendChild(cell);
+        });
+        inner.appendChild(headerRow);
 
-    // Days
-    const y = yearMonth.getFullYear();
-    const m = yearMonth.getMonth();
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date(y, m + 1, 0);
+        // Days
+        const y = yearMonth.getFullYear();
+        const m = yearMonth.getMonth();
+        const firstDay = new Date(y, m, 1);
 
-    // Start from previous month's days to fill first week
-    const startDow = firstDay.getDay(); // 0(Sun) - 6(Sat)
-    const displayStart = addDays(firstDay, -startDow);
+        const startDow = firstDay.getDay();
+        const displayStart = addDays(firstDay, -startDow);
+        const totalDays = 42;
 
-    // 6 weeks covers any month (max 31 days + 6 start offset = 37 days -> 6*7=42)
-    const totalDays = 42;
+        let currentRow = document.createElement('div');
+        currentRow.className = 'month-row';
 
-    let currentRow = document.createElement('div');
-    currentRow.className = 'month-row';
+        const today = toDateStr(new Date());
 
-    const today = toDateStr(new Date());
+        for (let i = 0; i < totalDays; i++) {
+            const d = addDays(displayStart, i);
+            const ds = toDateStr(d);
+            const isCurrentMonth = d.getMonth() === m;
 
-    for (let i = 0; i < totalDays; i++) {
-        const d = addDays(displayStart, i);
-        const ds = toDateStr(d);
-        const isCurrentMonth = d.getMonth() === m;
+            const cell = document.createElement('div');
+            cell.className = 'month-cell';
+            const numSpan = document.createElement('span');
+            numSpan.className = 'month-day-num';
+            numSpan.textContent = d.getDate();
+            if (scheduledDates.has(ds)) numSpan.classList.add('has-task');
+            cell.appendChild(numSpan);
+            cell.dataset.date = ds;
 
-        const cell = document.createElement('div');
-        cell.className = 'month-cell';
-        const numSpan = document.createElement('span');
-        numSpan.className = 'month-day-num';
-        numSpan.textContent = d.getDate();
-        if (scheduledDates.has(ds)) numSpan.classList.add('has-task');
-        cell.appendChild(numSpan);
-        cell.dataset.date = ds;
+            if (!isCurrentMonth) cell.classList.add('other-month');
+            if (ds === today) cell.classList.add('today');
 
-        if (!isCurrentMonth) cell.classList.add('other-month');
-        if (ds === today) cell.classList.add('today');
+            currentRow.appendChild(cell);
 
-        currentRow.appendChild(cell);
-
-        if ((i + 1) % 7 === 0) {
-            container.appendChild(currentRow);
-            currentRow = document.createElement('div');
-            currentRow.className = 'month-row';
+            if ((i + 1) % 7 === 0) {
+                inner.appendChild(currentRow);
+                currentRow = document.createElement('div');
+                currentRow.className = 'month-row';
+            }
         }
+        return inner;
+    };
+
+    if (!slideDirection) {
+        container.innerHTML = '';
+        container.appendChild(buildInner());
+        return;
+    }
+
+    const oldInner = container.querySelector('.month-calendar-inner');
+    if (oldInner) {
+        const outClass = slideDirection === 'left' ? 'slide-out-left' : 'slide-out-right';
+        oldInner.classList.add(outClass);
+        oldInner.addEventListener('animationend', () => {
+            oldInner.remove();
+            const newInner = buildInner();
+            const inClass = slideDirection === 'left' ? 'slide-in-right' : 'slide-in-left';
+            newInner.classList.add(inClass);
+            container.appendChild(newInner);
+            newInner.addEventListener('animationend', () => {
+                newInner.classList.remove(inClass);
+            }, { once: true });
+        }, { once: true });
+    } else {
+        container.innerHTML = '';
+        container.appendChild(buildInner());
     }
 }
 
@@ -222,34 +249,64 @@ export function renderMonthCalendar(container, yearMonth, scheduledDates = new S
  * Render year calendar (for Year View)
  * @param {HTMLElement} container
  * @param {Date} date - Date object for the year
+ * @param {'left'|'right'|null} slideDirection - Animation direction
  */
-export function renderYearCalendar(container, date) {
-    container.innerHTML = '';
-    const y = date.getFullYear();
-    const thisMonth = new Date().getMonth();
-    const thisYear = new Date().getFullYear();
+export function renderYearCalendar(container, date, slideDirection = null) {
+    const buildInner = () => {
+        const inner = document.createElement('div');
+        inner.className = 'year-calendar-inner';
+        const y = date.getFullYear();
+        const thisMonth = new Date().getMonth();
+        const thisYear = new Date().getFullYear();
 
-    for (let m = 0; m < 12; m++) {
-        const cell = document.createElement('div');
-        cell.className = 'year-cell';
+        for (let m = 0; m < 12; m++) {
+            const cell = document.createElement('div');
+            cell.className = 'year-cell';
 
-        const title = document.createElement('div');
-        title.className = 'year-month-title';
-        title.textContent = `${m + 1}月`;
-        cell.appendChild(title);
+            const title = document.createElement('div');
+            title.className = 'year-month-title';
+            title.textContent = `${m + 1}月`;
+            cell.appendChild(title);
 
-        const miniRaw = document.createElement('div');
-        miniRaw.className = 'mini-month-grid';
-        renderMiniMonth(miniRaw, y, m);
-        cell.appendChild(miniRaw);
+            const miniRaw = document.createElement('div');
+            miniRaw.className = 'mini-month-grid';
+            renderMiniMonth(miniRaw, y, m);
+            cell.appendChild(miniRaw);
 
-        cell.dataset.month = m;
+            cell.dataset.month = m;
 
-        if (y === thisYear && m === thisMonth) {
-            cell.classList.add('current-month');
+            if (y === thisYear && m === thisMonth) {
+                cell.classList.add('current-month');
+            }
+
+            inner.appendChild(cell);
         }
+        return inner;
+    };
 
-        container.appendChild(cell);
+    if (!slideDirection) {
+        container.innerHTML = '';
+        container.appendChild(buildInner());
+        return;
+    }
+
+    const oldInner = container.querySelector('.year-calendar-inner');
+    if (oldInner) {
+        const outClass = slideDirection === 'left' ? 'slide-out-left' : 'slide-out-right';
+        oldInner.classList.add(outClass);
+        oldInner.addEventListener('animationend', () => {
+            oldInner.remove();
+            const newInner = buildInner();
+            const inClass = slideDirection === 'left' ? 'slide-in-right' : 'slide-in-left';
+            newInner.classList.add(inClass);
+            container.appendChild(newInner);
+            newInner.addEventListener('animationend', () => {
+                newInner.classList.remove(inClass);
+            }, { once: true });
+        }, { once: true });
+    } else {
+        container.innerHTML = '';
+        container.appendChild(buildInner());
     }
 }
 

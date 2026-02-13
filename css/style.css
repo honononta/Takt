@@ -38,6 +38,9 @@
   --color-danger: #e04040;
   --color-danger-hover: #c03030;
 
+  --color-goal-today-bg: #e8f0fe;
+  --color-goal-overdue-bg: #fff0f0;
+
   --radius-card: 12px;
   --radius-btn: 50%;
   --radius-pill: 20px;
@@ -83,6 +86,9 @@
 
   --color-overlay: rgba(0, 0, 0, 0.6);
   --color-sheet-bg: #1a1a1a;
+
+  --color-goal-today-bg: #1a2a3a;
+  --color-goal-overdue-bg: #2d1a1a;
 }
 
 /* ===== リセット ===== */
@@ -867,6 +873,20 @@ body.sheet-open .header {
   opacity: 0.7;
 }
 
+.someday-card.goal-today {
+  background: var(--color-goal-today-bg);
+  border-color: #b8d4f0;
+}
+
+[data-theme="dark"] .someday-card.goal-today {
+  border-color: #2a4060;
+}
+
+.someday-card.goal-overdue {
+  background: var(--color-goal-overdue-bg);
+  border-color: var(--color-booking-border);
+}
+
 /* いつかやる空状態 */
 .someday-empty {
   text-align: center;
@@ -1117,6 +1137,12 @@ input[type="time"].form-input {
 /* 月カレンダー */
 .month-calendar {
   padding: 10px 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.month-calendar-inner {
+  width: 100%;
 }
 
 .month-row {
@@ -1165,6 +1191,15 @@ input[type="time"].form-input {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.year-calendar-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  grid-column: 1 / -1;
 }
 
 .year-cell {
@@ -1380,6 +1415,15 @@ input[type="time"].form-input {
   width: 100%;
   box-sizing: border-box;
   /* Bug fix precaution */
+  overflow: hidden;
+  position: relative;
+}
+
+.year-calendar-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  grid-column: 1 / -1;
 }
 
 .year-cell {

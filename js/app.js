@@ -172,6 +172,7 @@ function navigateNext(days = 1) {
 }
 
 function switchView(view) {
+    if (view === 'week') _prevWeekKey = null;
     if (currentView === view) return;
     if (viewContainer.classList.contains('animating')) return;
 
@@ -272,7 +273,7 @@ function render(slideDir = null) {
         monthView.classList.remove('view-hidden');
         yearView.classList.add('view-hidden');
 
-        renderMonthCalendar(monthView, currentDate, scheduledDates);
+        renderMonthCalendar(monthView, currentDate, scheduledDates, slideDir);
 
     } else if (currentView === 'year') {
         headerDate.textContent = `${currentDate.getFullYear()}年`;
@@ -281,7 +282,7 @@ function render(slideDir = null) {
         monthView.classList.add('view-hidden');
         yearView.classList.remove('view-hidden');
 
-        renderYearCalendar(yearView, currentDate);
+        renderYearCalendar(yearView, currentDate, slideDir);
     }
 
     // Visibility Control

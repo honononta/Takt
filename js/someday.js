@@ -1,7 +1,7 @@
 /**
  * someday.js — "いつかやる" persistent panel with drag-to-resize
  */
-import { sortSomedayTasks, getSomedayTasks, totalScore, formatDuration } from './task.js';
+import { sortSomedayTasks, getSomedayTasks, formatDuration } from './task.js';
 
 const panel = document.getElementById('somedayPanel');
 const handle = document.getElementById('somedayHandle');
@@ -105,6 +105,19 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
         card.className = 'someday-card';
         card.dataset.id = task.id;
 
+        // Goal date coloring
+        if (task.targetDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const goalDate = new Date(task.targetDate);
+            goalDate.setHours(0, 0, 0, 0);
+            if (goalDate.getTime() === today.getTime()) {
+                card.classList.add('goal-today');
+            } else if (goalDate < today) {
+                card.classList.add('goal-overdue');
+            }
+        }
+
         const nameEl = document.createElement('div');
         nameEl.className = 'task-name';
         nameEl.textContent = task.name;
@@ -133,11 +146,6 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
             dateEl.textContent = `目標 ${mm}/${dd}`;
             metaEl.appendChild(dateEl);
         }
-
-        const scoreEl = document.createElement('span');
-        scoreEl.className = 'score-badge';
-        scoreEl.textContent = `${totalScore(task, n1, n2)}pt`;
-        metaEl.appendChild(scoreEl);
 
         card.appendChild(metaEl);
 
