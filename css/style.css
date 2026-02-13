@@ -832,6 +832,7 @@ body.sheet-open .header {
   outline: none;
   transition: border-color 0.2s;
   touch-action: manipulation;
+  max-width: 100%;
 }
 
 .form-input:focus {
