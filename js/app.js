@@ -46,12 +46,21 @@ function _handleViewportResize() {
     const vv = window.visualViewport;
     if (!vv) return;
 
-    // キーボードが表示された場合、シートの高さを可視領域に合わせる
+    // キーボードの高さを計算
+    const keyboardHeight = Math.max(0, window.innerHeight - vv.height);
+
     const activeSheets = document.querySelectorAll('.bottom-sheet.active');
     activeSheets.forEach((sheet) => {
-        sheet.style.maxHeight = `${vv.height * 0.85}px`;
-        // キーボードによるオフセットを補正
-        sheet.style.bottom = `${vv.offsetTop >= 0 ? window.innerHeight - vv.height - vv.offsetTop : 0}px`;
+        if (keyboardHeight > 50) {
+            // キーボードが表示されている
+            const availableHeight = vv.height;
+            sheet.style.maxHeight = `${availableHeight * 0.85}px`;
+            sheet.style.transform = `translateY(-${keyboardHeight}px)`;
+        } else {
+            // キーボードが非表示
+            sheet.style.maxHeight = '';
+            sheet.style.transform = '';
+        }
     });
 
     // 裏のスクロールを強制リセット
@@ -92,7 +101,7 @@ export function unlockScroll() {
     const allSheets = document.querySelectorAll('.bottom-sheet');
     allSheets.forEach((sheet) => {
         sheet.style.maxHeight = '';
-        sheet.style.bottom = '';
+        sheet.style.transform = '';
     });
 
     // 最終的なスクロール位置リセット
