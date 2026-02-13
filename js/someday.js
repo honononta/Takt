@@ -56,7 +56,7 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
         if (task.pinned) {
             const pinEl = document.createElement('span');
             pinEl.className = 'pin-icon';
-            pinEl.textContent = '📌';
+            pinEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 11V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"/><path d="M5 17h14"/><path d="M6 11l1.5 6h9L18 11"/></svg>';
             metaEl.appendChild(pinEl);
         }
 

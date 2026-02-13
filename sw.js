@@ -1,18 +1,19 @@
-const CACHE_NAME = 'takt-v1';
+const CACHE_NAME = 'takt-v2';
+
+// GitHub Pages対応: 相対パス使用
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/db.js',
-  '/js/task.js',
-  '/js/calendar.js',
-  '/js/someday.js',
-  '/js/settings.js',
-  '/js/notification.js',
-  '/js/swipe.js',
-  '/data/holidays-jp.json',
-  '/manifest.json'
+  './',
+  './index.html',
+  './css/style.css',
+  './js/app.js',
+  './js/db.js',
+  './js/task.js',
+  './js/calendar.js',
+  './js/someday.js',
+  './js/settings.js',
+  './js/swipe.js',
+  './data/holidays-jp.json',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (e) => {
@@ -43,7 +44,7 @@ self.addEventListener('fetch', (e) => {
       });
     }).catch(() => {
       if (e.request.destination === 'document') {
-        return caches.match('/index.html');
+        return caches.match('./index.html');
       }
     })
   );

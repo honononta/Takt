@@ -8,18 +8,18 @@ import {
     formatDuration, minToTime, timeToMin
 } from './task.js';
 import {
-    loadHolidays, formatDateHeader, toDateStr, fromDateStr,
+    loadHolidays, isHoliday, getHolidayName, formatDateHeader, toDateStr, fromDateStr,
     addDays, getWeekDates, renderWeekCalendar
 } from './calendar.js';
 import { initSomeday, renderSomedayList } from './someday.js';
 import { initSettings } from './settings.js';
-import { initNotification, updateNotificationSettings, scheduleAllReminders, requestPermission } from './notification.js';
 import { initSwipe } from './swipe.js';
 
 // ===== State =====
 let currentDate = new Date();
 let allTasks = [];
 let settings = {};
+let _prevWeekKey = null; // 前回描画した週の識別キー
 
 const todayStr = () => toDateStr(new Date());
 
@@ -30,6 +30,8 @@ const taskArea = document.getElementById('taskArea');
 const unscheduledSection = document.getElementById('unscheduledSection');
 const unscheduledList = document.getElementById('unscheduledList');
 const timeline = document.getElementById('timeline');
+const holidayBanner = document.getElementById('holidayBanner');
+const holidayNameEl = document.getElementById('holidayName');
 
 // ===== Init =====
 async function init() {
@@ -59,7 +61,6 @@ async function init() {
     // Init modules
     initSomeday(onTaskClick);
     initSettings(onSettingsClose);
-    initNotification(settings.notificationsEnabled, settings.defaultRemindBefore);
 
     // Swipe navigation
     initSwipe(taskArea, {
@@ -67,8 +68,8 @@ async function init() {
         onSwipeRight: () => navigateDay(-1),
     });
     initSwipe(weekCalendar, {
-        onSwipeLeft: () => navigateDay(7),
-        onSwipeRight: () => navigateDay(-7),
+        onSwipeLeft: () => navigateWeek(7),
+        onSwipeRight: () => navigateWeek(-7),
     });
 
     // Navigation buttons
@@ -101,11 +102,6 @@ async function init() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => { });
     }
-
-    // Notification permission
-    if (settings.notificationsEnabled) {
-        requestPermission();
-    }
 }
 
 // ===== Navigation =====
@@ -114,16 +110,45 @@ function navigateDay(offset) {
     render();
 }
 
+function navigateWeek(offset) {
+    currentDate = addDays(currentDate, offset);
+    render(offset > 0 ? 'left' : 'right');
+}
+
 // ===== Render =====
-function render() {
+/**
+ * @param {'left'|'right'|null} weekSlide - 週カレンダーのスライド方向
+ */
+function render(weekSlide = null) {
     const dateStr = toDateStr(currentDate);
 
     // Header
     headerDate.textContent = formatDateHeader(currentDate);
 
-    // Week calendar
+    // 祝日バナー
+    const hName = getHolidayName(dateStr);
+    if (hName) {
+        holidayBanner.style.display = '';
+        holidayNameEl.textContent = hName;
+    } else {
+        holidayBanner.style.display = 'none';
+    }
+
+    // Week calendar (with animation detection)
     const weekDates = getWeekDates(currentDate, settings.weekStartDay);
-    renderWeekCalendar(weekCalendar, weekDates, currentDate, todayStr());
+    const newWeekKey = toDateStr(weekDates[0]); // 週の最初の日
+
+    // 週が変わったかどうかでスライド判定
+    let slideDir = null;
+    if (weekSlide) {
+        slideDir = weekSlide;
+    } else if (_prevWeekKey !== null && newWeekKey !== _prevWeekKey) {
+        // 日送りで週が変わった場合もアニメーション
+        slideDir = fromDateStr(newWeekKey) > fromDateStr(_prevWeekKey) ? 'left' : 'right';
+    }
+
+    _prevWeekKey = newWeekKey;
+    renderWeekCalendar(weekCalendar, weekDates, currentDate, todayStr(), slideDir);
 
     // Unscheduled tasks
     const unscheduled = getUnscheduledForDate(allTasks, dateStr);
@@ -142,11 +167,6 @@ function render() {
 
     // Someday list
     renderSomedayList(allTasks, settings.scoreThresholdN1, settings.scoreThresholdN2);
-
-    // Schedule notifications for today
-    if (dateStr === todayStr()) {
-        scheduleAllReminders(scheduled);
-    }
 }
 
 function renderUnscheduled(tasks) {
@@ -177,7 +197,13 @@ function renderTimeline(entries, bookingIds) {
     if (entries.length === 0) {
         timeline.innerHTML = `
       <div class="timeline-empty">
-        <div class="timeline-empty-icon">📋</div>
+        <svg class="timeline-empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
         <div class="timeline-empty-text">タスクがありません</div>
       </div>`;
         return;
@@ -548,7 +574,6 @@ async function onSettingsClose() {
     settings = await getAllSettings();
     document.documentElement.setAttribute('data-theme', settings.theme);
     await loadHolidays();
-    updateNotificationSettings(settings.notificationsEnabled, settings.defaultRemindBefore);
     render();
 }
 

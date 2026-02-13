@@ -134,17 +134,19 @@ body {
   height: 34px;
   border-radius: var(--radius-btn);
   border: 1.5px solid var(--color-button-border);
-  background: var(--color-button-bg);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.1s, background 0.15s;
 }
+
 .nav-btn:active {
   transform: scale(0.92);
   background: var(--color-border);
 }
+
 .nav-btn svg {
   width: 14px;
   height: 14px;
@@ -160,13 +162,14 @@ body {
   padding: 0 14px;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--color-button-border);
-  background: var(--color-button-bg);
+  background: transparent;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
   cursor: pointer;
   transition: transform 0.1s, background 0.15s;
 }
+
 .today-btn:active {
   transform: scale(0.95);
   background: var(--color-border);
@@ -177,7 +180,7 @@ body {
   height: 34px;
   border-radius: var(--radius-btn);
   border: 1.5px solid var(--color-button-border);
-  background: var(--color-button-bg);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,10 +188,12 @@ body {
   color: var(--color-text);
   transition: transform 0.1s, background 0.15s;
 }
+
 .settings-btn:active {
   transform: scale(0.92);
   background: var(--color-border);
 }
+
 .settings-btn svg {
   width: 16px;
   height: 16px;
@@ -201,6 +206,32 @@ body {
   padding: 0 12px 10px;
   gap: 2px;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.week-calendar-inner {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  grid-column: 1 / -1;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+}
+
+.week-calendar-inner.slide-left {
+  animation: slideOutLeft 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.week-calendar-inner.slide-right {
+  animation: slideOutRight 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.week-calendar-inner.slide-in-left {
+  animation: slideInFromRight 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.week-calendar-inner.slide-in-right {
+  animation: slideInFromLeft 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
 .week-day {
@@ -213,6 +244,7 @@ body {
   border-radius: 8px;
   transition: background 0.15s;
 }
+
 .week-day:active {
   background: var(--color-button-bg);
 }
@@ -238,13 +270,14 @@ body {
 }
 
 .week-day-num.today {
-  background: var(--color-accent);
-  color: var(--color-accent-text);
+  border: 2px solid var(--color-accent);
   font-weight: 700;
 }
 
-.week-day-num.selected:not(.today) {
-  border: 2px solid var(--color-accent);
+.week-day-num.selected {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 700;
 }
 
 .week-day .holiday-dot {
@@ -261,6 +294,27 @@ body {
   background: var(--color-border);
   margin: 0 16px;
   flex-shrink: 0;
+}
+
+/* 祝日バナー */
+.holiday-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--color-booking-bg);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-holiday);
+}
+
+.holiday-banner-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-holiday);
 }
 
 /* ===== タスクエリア ===== */
@@ -299,14 +353,17 @@ body {
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.15s;
 }
+
 .unscheduled-card:active {
   transform: scale(0.98);
 }
+
 .unscheduled-card .task-name {
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
 }
+
 .unscheduled-card .task-meta {
   font-size: 12px;
   color: var(--color-text-secondary);
@@ -378,6 +435,7 @@ body {
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.15s;
 }
+
 .task-card:active {
   transform: scale(0.98);
 }
@@ -434,6 +492,7 @@ body {
   background: var(--color-card-bg);
   border-color: var(--color-card-border);
 }
+
 .task-card.booking.approved .booking-badge {
   color: var(--color-text-secondary);
   border-color: var(--color-button-border);
@@ -445,11 +504,13 @@ body {
   border: 1.5px dashed var(--color-border);
   cursor: default;
 }
+
 .task-card.empty-card .task-name {
   color: var(--color-empty);
   font-weight: 400;
   font-size: 13px;
 }
+
 .task-card.empty-card .task-start,
 .task-card.empty-card .task-duration,
 .task-card.empty-card .meta-separator {
@@ -471,10 +532,12 @@ body {
   padding: 60px 20px;
   gap: 12px;
 }
+
 .timeline-empty-icon {
   font-size: 48px;
   opacity: 0.3;
 }
+
 .timeline-empty-text {
   font-size: 14px;
   color: var(--color-text-secondary);
@@ -507,10 +570,12 @@ body {
   gap: 6px;
   transition: transform 0.1s, background 0.15s;
 }
+
 .someday-btn:active {
   transform: scale(0.95);
   background: var(--color-border);
 }
+
 .someday-btn svg {
   width: 16px;
   height: 16px;
@@ -534,10 +599,12 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.1s, box-shadow 0.15s;
 }
+
 .add-btn:active {
   transform: scale(0.92);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
+
 .add-btn svg {
   width: 22px;
   height: 22px;
@@ -558,6 +625,7 @@ body {
   transition: opacity 0.3s ease;
   z-index: 90;
 }
+
 .overlay.active {
   opacity: 1;
   pointer-events: auto;
@@ -578,6 +646,7 @@ body {
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
 .bottom-sheet.active {
   transform: translateY(0);
 }
@@ -616,6 +685,7 @@ body {
   justify-content: center;
   cursor: pointer;
 }
+
 .sheet-close svg {
   width: 16px;
   height: 16px;
@@ -643,14 +713,17 @@ body {
   cursor: pointer;
   transition: transform 0.1s;
 }
+
 .someday-card:active {
   transform: scale(0.98);
 }
+
 .someday-card .task-name {
   font-size: 15px;
   font-weight: 500;
   color: var(--color-text);
 }
+
 .someday-card .someday-meta {
   display: flex;
   align-items: center;
@@ -659,6 +732,7 @@ body {
   font-size: 12px;
   color: var(--color-text-secondary);
 }
+
 .someday-card .score-badge {
   font-size: 11px;
   font-weight: 600;
@@ -668,6 +742,7 @@ body {
   padding: 1px 8px;
   margin-left: auto;
 }
+
 .someday-card .pin-icon {
   font-size: 13px;
 }
@@ -705,6 +780,7 @@ body {
   outline: none;
   transition: border-color 0.2s;
 }
+
 .form-input:focus {
   border-color: var(--color-accent);
 }
@@ -760,9 +836,11 @@ body {
   color: var(--color-text-secondary);
   transition: all 0.2s;
 }
+
 .form-radio input {
   display: none;
 }
+
 .form-radio:has(input:checked) {
   background: var(--color-accent);
   color: var(--color-accent-text);
@@ -774,6 +852,7 @@ body {
   align-items: center;
   justify-content: space-between;
 }
+
 .form-row .form-label {
   margin-bottom: 0;
 }
@@ -783,6 +862,7 @@ body {
   display: flex;
   gap: 4px;
 }
+
 .importance-btn {
   flex: 1;
   padding: 8px 4px;
@@ -795,6 +875,7 @@ body {
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .importance-btn.active {
   background: var(--color-accent);
   color: var(--color-accent-text);
@@ -808,11 +889,13 @@ body {
   width: 44px;
   height: 24px;
 }
+
 .toggle input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .toggle-slider {
   position: absolute;
   inset: 0;
@@ -821,6 +904,7 @@ body {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .toggle-slider::before {
   content: '';
   position: absolute;
@@ -832,10 +916,12 @@ body {
   border-radius: 50%;
   transition: transform 0.3s;
 }
-.toggle input:checked + .toggle-slider {
+
+.toggle input:checked+.toggle-slider {
   background: var(--color-accent);
 }
-.toggle input:checked + .toggle-slider::before {
+
+.toggle input:checked+.toggle-slider::before {
   transform: translateX(20px);
 }
 
@@ -856,6 +942,7 @@ body {
   cursor: pointer;
   transition: transform 0.1s, opacity 0.2s;
 }
+
 .btn:active {
   transform: scale(0.96);
 }
@@ -870,6 +957,7 @@ body {
   background: var(--color-danger);
   color: #fff;
 }
+
 .btn-delete:active {
   background: var(--color-danger-hover);
 }
@@ -919,11 +1007,77 @@ body {
 
 /* ===== アニメーション ===== */
 @keyframes slideInUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 設定ヒント */
+.settings-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
 }

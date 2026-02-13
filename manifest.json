@@ -1,8 +1,9 @@
 {
     "name": "Takt",
     "short_name": "Takt",
-    "description": "タスク管理 + カレンダー PWA アプリ",
-    "start_url": "/index.html",
+    "description": "タスク管理 + カレンダー",
+    "start_url": "./index.html",
+    "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#ffffff",

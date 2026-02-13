@@ -22,11 +22,11 @@ export function isHoliday(dateStr) {
 
 export function getHolidayName(dateStr) {
     const mmdd = dateStr.slice(5);
-    const h = _holidays.find((h) => {
+    const found = _holidays.find((h) => {
         if (h.repeat) return h.date === mmdd;
         return h.date === dateStr;
     });
-    return h ? h.name : null;
+    return found ? found.name : null;
 }
 
 export function formatDateHeader(date) {
@@ -66,36 +66,80 @@ export function getWeekDates(centerDate, weekStartDay = 0) {
     return dates;
 }
 
-export function renderWeekCalendar(container, weekDates, selectedDate, todayStr) {
-    container.innerHTML = '';
-    for (const d of weekDates) {
-        const ds = toDateStr(d);
-        const isToday = ds === todayStr;
-        const isSelected = ds === toDateStr(selectedDate);
-        const holiday = isHoliday(ds);
+/**
+ * Render week calendar with optional slide animation.
+ * @param {HTMLElement} container - The .week-calendar element
+ * @param {Date[]} weekDates
+ * @param {Date} selectedDate
+ * @param {string} todayStr
+ * @param {'left'|'right'|null} slideDirection - Animation direction
+ */
+export function renderWeekCalendar(container, weekDates, selectedDate, todayStr, slideDirection = null) {
+    const buildInner = () => {
+        const inner = document.createElement('div');
+        inner.className = 'week-calendar-inner';
 
-        const dayEl = document.createElement('div');
-        dayEl.className = 'week-day';
-        dayEl.dataset.date = ds;
+        for (const d of weekDates) {
+            const ds = toDateStr(d);
+            const isToday = ds === todayStr;
+            const isSelected = ds === toDateStr(selectedDate);
+            const holiday = isHoliday(ds);
 
-        const labelEl = document.createElement('span');
-        labelEl.className = 'week-day-label';
-        labelEl.textContent = DAY_NAMES[d.getDay()];
-        dayEl.appendChild(labelEl);
+            const dayEl = document.createElement('div');
+            dayEl.className = 'week-day';
+            dayEl.dataset.date = ds;
 
-        const numWrap = document.createElement('span');
-        numWrap.className = 'week-day-num';
-        if (isToday) numWrap.classList.add('today');
-        if (isSelected && !isToday) numWrap.classList.add('selected');
-        numWrap.textContent = d.getDate();
+            const labelEl = document.createElement('span');
+            labelEl.className = 'week-day-label';
+            labelEl.textContent = DAY_NAMES[d.getDay()];
+            dayEl.appendChild(labelEl);
 
-        if (holiday) {
-            const dot = document.createElement('span');
-            dot.className = 'holiday-dot';
-            numWrap.appendChild(dot);
+            const numWrap = document.createElement('span');
+            numWrap.className = 'week-day-num';
+            if (isToday) numWrap.classList.add('today');
+            if (isSelected) numWrap.classList.add('selected');
+            numWrap.textContent = d.getDate();
+
+            if (holiday) {
+                const dot = document.createElement('span');
+                dot.className = 'holiday-dot';
+                numWrap.appendChild(dot);
+            }
+
+            dayEl.appendChild(numWrap);
+            inner.appendChild(dayEl);
         }
+        return inner;
+    };
 
-        dayEl.appendChild(numWrap);
-        container.appendChild(dayEl);
+    if (!slideDirection) {
+        // No animation, just replace
+        container.innerHTML = '';
+        container.appendChild(buildInner());
+        return;
+    }
+
+    // Animate: old slides out, new slides in
+    const oldInner = container.querySelector('.week-calendar-inner');
+
+    if (oldInner) {
+        // Slide out old
+        const outClass = slideDirection === 'left' ? 'slide-left' : 'slide-right';
+        oldInner.classList.add(outClass);
+
+        // After old finishes, add new with slide-in
+        oldInner.addEventListener('animationend', () => {
+            oldInner.remove();
+            const newInner = buildInner();
+            const inClass = slideDirection === 'left' ? 'slide-in-left' : 'slide-in-right';
+            newInner.classList.add(inClass);
+            container.appendChild(newInner);
+            newInner.addEventListener('animationend', () => {
+                newInner.classList.remove(inClass);
+            }, { once: true });
+        }, { once: true });
+    } else {
+        container.innerHTML = '';
+        container.appendChild(buildInner());
     }
 }
