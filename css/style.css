@@ -1446,8 +1446,140 @@ input[type="time"].form-input {
   animation: slideInFromRight 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
-.slide-in-left {
-  animation: slideInFromLeft 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+
+/* ===== PWA アコーディオン ===== */
+.pwa-accordion {
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.pwa-accordion[open] .pwa-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.pwa-accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Safari のデフォルト三角アイコンを消す */
+.pwa-accordion-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.pwa-accordion-trigger::marker {
+  display: none;
+  content: '';
+}
+
+.pwa-accordion-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pwa-accordion-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: transform 0.25s ease;
+}
+
+.pwa-accordion-body {
+  padding: 0 16px 16px;
+}
+
+.pwa-description {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.pwa-sub-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.pwa-steps-list {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--color-text);
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.pwa-steps-list li {
+  margin-bottom: 2px;
+}
+
+.pwa-note-inline {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.pwa-warning {
+  background: var(--color-booking-bg);
+  border: 1px solid var(--color-booking-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.pwa-warning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.pwa-warning-icon {
+  flex-shrink: 0;
+  color: var(--color-danger);
+}
+
+.pwa-warning-intro {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.pwa-warning-list {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text);
+  padding-left: 18px;
+  margin-bottom: 10px;
+}
+
+.pwa-warning-list li {
+  margin-bottom: 8px;
+}
+
+.pwa-warning-list li strong {
+  color: var(--color-text);
+}
+
+.pwa-warning-list li br+* {
+  color: var(--color-text-secondary);
+}
+
+.pwa-warning-footer {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 /* Fade Transition (Simple Cross-Fade) */

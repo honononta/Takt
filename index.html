@@ -268,22 +268,55 @@
       </button>
     </div>
     <div class="sheet-body">
-      <div class="settings-section pwa-info">
-        <h3 class="settings-section-title">📱 アプリとして使う</h3>
-        <div class="pwa-steps">
-          <p class="pwa-step"><strong>Safariでの設定方法</strong></p>
-          <p class="pwa-step">1. 画面下の共有ボタン <span class="pwa-icon">⬆</span> をタップ</p>
-          <p class="pwa-step">2.「ホーム画面に追加」を選択</p>
-        </div>
-        <div class="pwa-notice">
-          <svg class="pwa-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <p>本アプリはPWA（Webアプリ）です。データは端末に保存されますが、ストレージ容量の不足やブラウザのデータ削除によりデータが失われる場合があります。</p>
-        </div>
+      <div class="settings-section">
+        <details class="pwa-accordion">
+          <summary class="pwa-accordion-trigger">
+            <span class="pwa-accordion-title">ホーム画面への追加方法（PWA）</span>
+            <svg class="pwa-accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="pwa-accordion-body">
+            <p class="pwa-description">
+              本アプリはPWA（Progressive Web App）に対応しており、ホーム画面に追加することで、通常のアプリのようにご利用いただけます。
+            </p>
+
+            <h4 class="pwa-sub-heading">Safariでの設定手順（iPhone / iPad）</h4>
+            <ol class="pwa-steps-list">
+              <li>Safari でアプリのページを開きます</li>
+              <li>画面右下の「…」ボタン（その他メニュー）をタップします</li>
+              <li>「共有」ボタンをタップします</li>
+              <li>メニューを下にスクロールし、<strong>「ホーム画面に追加」</strong>をタップします</li>
+              <li>名前を確認し、右上の「追加」をタップすれば完了です</li>
+            </ol>
+            <p class="pwa-note-inline">
+              ホーム画面にアプリアイコンが表示され、次回からはそちらからアクセスできます。
+            </p>
+
+            <div class="pwa-warning">
+              <div class="pwa-warning-header">
+                <svg class="pwa-warning-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>ご利用にあたっての注意事項</span>
+              </div>
+              <p class="pwa-warning-intro">
+                PWAはブラウザの機能を利用してデータを端末内に保存しています。以下の操作や状況により保存データが失われる場合がありますのでご注意ください。
+              </p>
+              <ul class="pwa-warning-list">
+                <li><strong>ブラウザのデータを削除した場合</strong><br>アプリ内に保存されたデータがすべて消去されます。</li>
+                <li><strong>端末のストレージ容量が不足している場合</strong><br>OSが自動的にブラウザのデータを削除することがあり、アプリのデータも失われる可能性があります。</li>
+                <li><strong>長期間アプリを使用しなかった場合</strong><br>ブラウザの仕様により、一定期間アクセスがないとデータが自動的に削除される場合があります。</li>
+                <li><strong>OSやブラウザのアップデート</strong><br>まれに、アップデートの影響でデータが初期化されることがあります。</li>
+              </ul>
+              <p class="pwa-warning-footer">大切なデータは定期的にバックアップを取ることをおすすめいたします。</p>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="settings-section">
