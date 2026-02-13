@@ -1348,21 +1348,25 @@ input[type="time"].form-input {
 .year-cell {
   flex-direction: column;
   justify-content: start;
-  padding: 4px;
+  padding: 2px;
+  /* Reduced for more space */
 }
 
 .year-month-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   margin-bottom: 2px;
   color: var(--color-text);
+  line-height: 1.2;
 }
 
 .mini-month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   width: 100%;
-  gap: 1px;
+  gap: 0;
+  /* No gap to prevent overflow */
+  padding: 0 2px;
 }
 
 .mini-day {
@@ -1370,6 +1374,7 @@ input[type="time"].form-input {
   text-align: center;
   color: var(--color-text);
   aspect-ratio: 1;
+  /* Keep square */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1381,77 +1386,39 @@ input[type="time"].form-input {
   opacity: 0.3;
 }
 
-/* Zoom Transition */
-.zoom-enter-active,
-.zoom-exit-active {
-  transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+/* Fade Transition (Simple Cross-Fade) */
+.view-fade-enter-active,
+.view-fade-exit-active {
+  transition: opacity 0.25s ease-in-out;
   backface-visibility: hidden;
 }
 
-/* Zoom Out (Week -> Month -> Year) */
-/* Exit currently visible view: scale down */
-.zoom-out-exit {
+/* Exit: old view fades out */
+.view-fade-exit {
   opacity: 1;
-  transform: scale(1);
 }
 
-.zoom-out-exit-active {
+.view-fade-exit-active {
   opacity: 0;
-  transform: scale(0.9);
 }
 
-/* Enter new view: scale up from larger? No, Zoom Out means new view is "above" or "larger context". */
-/* Usually "Zoom Out": Current view shrinks away, New view comes from "surrounding". */
-/* Or: Current view (Week) is detailed. New view (Month) is context. */
-/* Week shrinks to a cell? Hard. */
-/* Standard Zoom Out: Current scales DOWN. New view scales UP from smaller? No. */
-/* Let's try: */
-/* Exit (Week): Scale Down (0.9), Fade Out. */
-/* Enter (Month): Scale Up from 1.1 to 1? Or Scale Down from 1.1 to 1? */
-/* Try: Enter starts at scale 1.1, opacity 0 -> scale 1, opacity 1. */
-.zoom-out-enter {
+/* Enter: new view fades in */
+.view-fade-enter {
   opacity: 0;
-  transform: scale(1.1);
 }
 
-.zoom-out-enter-active {
+.view-fade-enter-active {
   opacity: 1;
-  transform: scale(1);
-}
-
-/* Zoom In (Year -> Month -> Week) */
-/* Exit (Year): Scale Up (1.1), Fade Out. */
-.zoom-in-exit {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.zoom-in-exit-active {
-  opacity: 0;
-  transform: scale(1.1);
-}
-
-/* Enter (Month): Scale Up from 0.9 to 1. */
-.zoom-in-enter {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-.zoom-in-enter-active {
-  opacity: 1;
-  transform: scale(1);
 }
 
 .view-container.animating {
   overflow: hidden;
-  /* Ensure content doesn't spill during transition */
 }
 
 .view-container.animating .view-content {
   position: absolute;
-  /* Place on top of each other */
   top: 0;
   left: 0;
   width: 100%;
-  /* height is managed via JS on container */
+  /* height managed via JS */
 }

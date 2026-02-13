@@ -252,11 +252,7 @@ function switchView(view) {
     if (currentView === view) return;
     if (viewContainer.classList.contains('animating')) return;
 
-    const order = { week: 0, month: 1, year: 2 };
     const oldView = currentView;
-    const diff = order[view] - order[oldView];
-    const dir = diff > 0 ? 'out' : 'in';
-
     const oldEl = document.getElementById(oldView + 'View');
     const newEl = document.getElementById(view + 'View');
 
@@ -265,25 +261,24 @@ function switchView(view) {
     const startHeight = viewContainer.offsetHeight;
     viewContainer.style.height = startHeight + 'px';
 
-    // Switch Logic (Updates DOM content and default visibility)
+    // Switch Logic
     currentView = view;
     render();
 
-    // Restore oldEl visibility for animation (render hidden it)
+    // Restore oldEl visibility for animation
     oldEl.classList.remove('view-hidden');
 
-    // Measure new height (newEl is visible due to render)
     const newHeight = newEl.offsetHeight;
 
-    // Execute Animation
+    // Execute Animation (Fade)
     requestAnimationFrame(() => {
-        viewContainer.style.transition = 'height 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        viewContainer.style.transition = 'height 0.25s ease-in-out';
         viewContainer.style.height = newHeight + 'px';
 
-        const exit = dir === 'out' ? 'zoom-out-exit' : 'zoom-in-exit';
-        const exitActive = dir === 'out' ? 'zoom-out-exit-active' : 'zoom-in-exit-active';
-        const enter = dir === 'out' ? 'zoom-out-enter' : 'zoom-in-enter';
-        const enterActive = dir === 'out' ? 'zoom-out-enter-active' : 'zoom-in-enter-active';
+        const exit = 'view-fade-exit';
+        const exitActive = 'view-fade-exit-active';
+        const enter = 'view-fade-enter';
+        const enterActive = 'view-fade-enter-active';
 
         oldEl.classList.add(exit);
         newEl.classList.add(enter);
@@ -304,7 +299,7 @@ function switchView(view) {
             oldEl.classList.add('view-hidden');
 
             newEl.classList.remove(enter, enterActive);
-        }, 300);
+        }, 250); // Match CSS duration
     });
 }
 
