@@ -13,6 +13,14 @@ let _startX = 0;
 let _startY = 0;
 let _dragStarted = false;
 let _onDrop = null;      // callback(task, dateStr)
+let _justDragged = false; // prevent click after drag
+
+/**
+ * Returns true if a drag action just occurred (to suppress click events).
+ */
+export function wasDragAction() {
+    return _justDragged;
+}
 
 /**
  * Initialize drag-drop system.
@@ -68,6 +76,9 @@ function _startDrag(cardEl, pos) {
     // Haptic feedback if available
     if (navigator.vibrate) navigator.vibrate(30);
 
+    // Prevent scrolling and text selection during drag
+    document.body.classList.add('dragging');
+
     // Create ghost
     _dragGhost = document.createElement('div');
     _dragGhost.className = 'drag-ghost';
@@ -114,6 +125,10 @@ function _onEnd(e) {
 
     // Clean up
     _cleanupDrag();
+
+    // Prevent the subsequent click event from opening the edit form
+    _justDragged = true;
+    setTimeout(() => { _justDragged = false; }, 300);
 
     if (dateStr && _dragTask && _onDrop) {
         _onDrop(_dragTask, dateStr);
@@ -194,6 +209,8 @@ function _showDropZones() {
 function _cleanupDrag() {
     _isDragging = false;
     _dragStarted = false;
+
+    document.body.classList.remove('dragging');
 
     if (_dragGhost) {
         _dragGhost.remove();

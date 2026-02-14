@@ -2,7 +2,7 @@
  * someday.js — "いつかやる" persistent panel with drag-to-resize
  */
 import { sortSomedayTasks, getSomedayTasks, formatDuration } from './task.js';
-import { attachDrag } from './dragDrop.js';
+import { attachDrag, wasDragAction } from './dragDrop.js';
 
 const panel = document.getElementById('somedayPanel');
 const handle = document.getElementById('somedayHandle');
@@ -151,6 +151,7 @@ export function renderSomedayList(allTasks, n1 = 8, n2 = 3) {
         card.appendChild(metaEl);
 
         card.addEventListener('click', () => {
+            if (wasDragAction()) return;
             if (_onTaskClick) _onTaskClick(task);
         });
 

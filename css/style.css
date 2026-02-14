@@ -1805,3 +1805,61 @@ input[type="time"].form-input {
   font-size: 14px;
   vertical-align: middle;
 }
+
+/* ===== ドラッグ&ドロップ ===== */
+.drag-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, 0);
+  opacity: 0.95;
+}
+
+.drag-source {
+  opacity: 0.3;
+  transform: scale(0.96);
+}
+
+.drop-highlight {
+  background: var(--color-accent) !important;
+  opacity: 0.15;
+  border-radius: 8px;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.week-day.drop-highlight {
+  opacity: 1;
+  background: rgba(26, 26, 26, 0.08) !important;
+}
+
+[data-theme="dark"] .week-day.drop-highlight {
+  background: rgba(224, 224, 224, 0.12) !important;
+}
+
+.task-area.drop-highlight {
+  background: rgba(26, 26, 26, 0.04) !important;
+}
+
+[data-theme="dark"] .task-area.drop-highlight {
+  background: rgba(224, 224, 224, 0.06) !important;
+}
+
+.drop-zone-active .week-day {
+  transition: background 0.15s;
+}
+
+body.dragging {
+  -webkit-touch-callout: none;
+  user-select: none;
+}

@@ -324,20 +324,19 @@
             <button type="button" class="importance-btn active" data-value="mid">中</button>
             <button type="button" class="importance-btn" data-value="high">高</button>
           </div>
+        </div>
 
+        <div class="form-group form-row" id="taskPinnedRow">
+          <label class="form-label">ピン止め</label>
+          <label class="toggle">
+            <input type="checkbox" id="taskPinned">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
 
-          <div class="form-group form-row" id="taskPinnedRow">
-            <label class="form-label">ピン止め</label>
-            <label class="toggle">
-              <input type="checkbox" id="taskPinned">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn btn-delete" id="taskDeleteBtn" style="display:none;">削除</button>
-            <!-- 保存ボタンはヘッダーに移動 -->
-          </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-delete" id="taskDeleteBtn" style="display:none;">削除</button>
+          <!-- 保存ボタンはヘッダーに移動 -->
         </div>
       </form>
     </div>
