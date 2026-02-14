@@ -26,6 +26,13 @@ let _prevWeekKey = null; // 前回描画した週の識別キー
 
 const todayStr = () => toDateStr(new Date());
 
+const THEME_COLORS = { light: '#ffffff', dark: '#121212' };
+
+function updateThemeColor(theme) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', THEME_COLORS[theme] || THEME_COLORS.light);
+}
+
 // ===== DOM =====
 
 // ===== DOM =====
@@ -50,6 +57,7 @@ async function init() {
 
     // Apply theme
     document.documentElement.setAttribute('data-theme', settings.theme);
+    updateThemeColor(settings.theme);
 
     // Load holidays (try loading bundled data on first visit)
     await loadHolidays();
@@ -983,6 +991,7 @@ function onTaskClick(task) {
 async function onSettingsClose() {
     settings = await getAllSettings();
     document.documentElement.setAttribute('data-theme', settings.theme);
+    updateThemeColor(settings.theme);
     await loadHolidays();
     render();
 }
