@@ -575,6 +575,29 @@ function setupTaskForm() {
         });
     });
 
+    // Recurrence until date validation
+    const recurrenceUntil = document.getElementById('recurrenceUntil');
+    const targetDateInput = document.getElementById('targetDate');
+    const untilError = document.getElementById('recurrenceUntilError');
+
+    const validateRecurrenceUntil = () => {
+        const untilVal = recurrenceUntil.value;
+        const dateVal = targetDateInput.value;
+        if (untilVal && dateVal && untilVal < dateVal) {
+            recurrenceUntil.classList.add('input-error');
+            untilError.style.display = '';
+            headerSaveBtn.disabled = true;
+            headerSaveBtn.style.opacity = '0.3';
+        } else {
+            recurrenceUntil.classList.remove('input-error');
+            untilError.style.display = 'none';
+            headerSaveBtn.disabled = false;
+            headerSaveBtn.style.opacity = '';
+        }
+    };
+    recurrenceUntil.addEventListener('change', validateRecurrenceUntil);
+    targetDateInput.addEventListener('change', validateRecurrenceUntil);
+
     // Importance buttons
     importanceBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -769,6 +792,15 @@ async function openTaskForm(task = null) {
         goalDate.value = toDateStr(currentDate);
         targetTime.value = '09:00';
     }
+
+    // Reset validation state
+    const untilInput = document.getElementById('recurrenceUntil');
+    const untilErr = document.getElementById('recurrenceUntilError');
+    const saveBtn = document.getElementById('taskHeaderSaveBtn');
+    untilInput.classList.remove('input-error');
+    untilErr.style.display = 'none';
+    saveBtn.disabled = false;
+    saveBtn.style.opacity = '';
 
     taskOverlay.classList.add('active');
     taskSheet.classList.add('active');

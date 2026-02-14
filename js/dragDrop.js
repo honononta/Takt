@@ -35,6 +35,11 @@ export function initDragDrop(onDrop) {
     document.addEventListener('touchcancel', _onEnd);
     document.addEventListener('mousemove', _onMove);
     document.addEventListener('mouseup', _onEnd);
+
+    // Prevent text selection during drag
+    document.addEventListener('selectstart', (e) => {
+        if (_isDragging) e.preventDefault();
+    });
 }
 
 /**
@@ -53,6 +58,11 @@ export function attachDrag(cardEl, task) {
     cardEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return; // left button only
         _beginLongPress(e, task, cardEl);
+    });
+
+    // Suppress iOS context menu on long-press
+    cardEl.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
     });
 }
 
