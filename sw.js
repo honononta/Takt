@@ -1,4 +1,4 @@
-const CACHE_NAME = 'takt-v14';
+const CACHE_NAME = 'takt-v15';
 
 // GitHub Pages対応: 相対パス使用
 const ASSETS = [
@@ -10,9 +10,11 @@ const ASSETS = [
   './js/task.js',
   './js/calendar.js',
   './js/someday.js',
+  './js/dragDrop.js',
   './js/settings.js',
   './js/scrollLock.js',
   './js/swipe.js',
+  './js/notification.js',
   './data/holidays-jp.json',
   './manifest.json'
 ];

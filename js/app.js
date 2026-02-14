@@ -12,6 +12,7 @@ import {
     addDays, getWeekDates, renderWeekCalendar, renderMonthCalendar, renderYearCalendar
 } from './calendar.js';
 import { initSomeday, renderSomedayList } from './someday.js';
+import { initDragDrop } from './dragDrop.js';
 import { initSettings } from './settings.js';
 import { initSwipe } from './swipe.js';
 import { lockScroll, unlockScroll } from './scrollLock.js';
@@ -70,6 +71,7 @@ async function init() {
 
     // Init modules
     initSomeday(onTaskClick);
+    initDragDrop(onDropTask);
     initSettings(onSettingsClose);
 
     // Swipe navigation
@@ -913,6 +915,34 @@ async function saveTaskFromForm() {
     return true;
 }
 
+
+/**
+ * Handle drop of a someday task onto a calendar date or task area.
+ * Opens the task form in edit mode with targetType=date and the dropped date preset.
+ */
+function onDropTask(task, dateStr) {
+    // Resolve the actual date
+    const dropDate = dateStr === '__CURRENT__' ? toDateStr(currentDate) : dateStr;
+
+    // Open the task form with the task data
+    openTaskForm(task);
+
+    // After form is opened, switch to "日付指定" mode and set the date
+    requestAnimationFrame(() => {
+        // Set target type to "date" (日付指定)
+        const dateRadio = document.querySelector('input[name="targetType"][value="date"]');
+        if (dateRadio) {
+            dateRadio.checked = true;
+            dateRadio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Set the scheduled date
+        const targetDateInput = document.getElementById('targetDate');
+        if (targetDateInput) {
+            targetDateInput.value = dropDate;
+        }
+    });
+}
 
 function onTaskClick(task) {
     openTaskForm(task);
