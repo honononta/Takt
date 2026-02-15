@@ -28,8 +28,14 @@ export function initSettings(onClose) {
             const val = e.target.value;
             document.documentElement.setAttribute('data-theme', val);
             // Update status bar color immediately
-            const meta = document.querySelector('meta[name="theme-color"]');
-            if (meta) meta.setAttribute('content', val === 'dark' ? '#121212' : '#ffffff');
+            const color = val === 'dark' ? '#121212' : '#ffffff';
+            document.body.style.backgroundColor = color;
+            const oldMeta = document.querySelector('meta[name="theme-color"]');
+            if (oldMeta) oldMeta.remove();
+            const newMeta = document.createElement('meta');
+            newMeta.name = 'theme-color';
+            newMeta.content = color;
+            document.head.appendChild(newMeta);
             await setSetting('theme', val);
         });
     }
