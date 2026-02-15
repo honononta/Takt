@@ -27,9 +27,8 @@ export function initSettings(onClose) {
         themeSelect.addEventListener('change', async (e) => {
             const val = e.target.value;
             document.documentElement.setAttribute('data-theme', val);
-            // Update status bar color immediately
+            // Update status bar color immediately (remove/re-insert to force browser re-evaluation)
             const color = val === 'dark' ? '#121212' : '#ffffff';
-            document.body.style.backgroundColor = color;
             const oldMeta = document.querySelector('meta[name="theme-color"]');
             if (oldMeta) oldMeta.remove();
             const newMeta = document.createElement('meta');
