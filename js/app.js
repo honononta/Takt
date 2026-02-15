@@ -29,8 +29,16 @@ const todayStr = () => toDateStr(new Date());
 const THEME_COLORS = { light: '#ffffff', dark: '#121212' };
 
 function updateThemeColor(theme) {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', THEME_COLORS[theme] || THEME_COLORS.light);
+    const color = THEME_COLORS[theme] || THEME_COLORS.light;
+    // iOS 26+ Safari: body background-color determines chrome color
+    document.body.style.backgroundColor = color;
+    // Remove and re-insert meta tag to force browser re-evaluation
+    const existing = document.querySelector('meta[name="theme-color"]');
+    if (existing) existing.remove();
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = color;
+    document.head.appendChild(meta);
 }
 
 // ===== DOM =====
